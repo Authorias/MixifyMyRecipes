@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Http\Requests\AuthenticationRequest;
 use App\Models\User;
 
 class AuthenticationController extends ApiController
@@ -13,9 +14,9 @@ class AuthenticationController extends ApiController
      * POST : api/authentication/login
      * Authenticate a user and return a token.
      */
-    public function login(Request $request)
+    public function login(AuthenticationRequest $request)
     {
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->validated();
 
         if (Auth::attempt($credentials)) {
             /** @var User $user */
