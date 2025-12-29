@@ -21,7 +21,7 @@ class RecipeMenu extends Model
      */
     protected $fillable = [
         'menuid',
-        'recipieid',
+        'recipeid',
         'position',
     ];
 

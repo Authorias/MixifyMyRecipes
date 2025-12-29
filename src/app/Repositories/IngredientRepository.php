@@ -12,14 +12,17 @@ class IngredientRepository extends Repository implements IIngredientRepository
         return Ingredient::create($data);
     }
 
-    public function update($id, $data)
+    public function update(array $primaryKeys, $data)
     {
-        return Ingredient::where('id', $id)->update($data);
+        return Ingredient::where(
+            'id', 
+            $this->getValueFromPrimaryKeys($primaryKeys, 0)
+        )->update($data);
     }
 
-    public function delete($id)
+    public function delete(array $primaryKeys)
     {
-        return Ingredient::destroy($id);
+        return Ingredient::destroy($this->getValueFromPrimaryKeys($primaryKeys, 0));
     }
 
     public function readAll(): array
@@ -27,8 +30,8 @@ class IngredientRepository extends Repository implements IIngredientRepository
         return Ingredient::all()->toArray();
     }
 
-    public function readById($id): ?object
+    public function readById(array $primaryKeys): ?object
     {
-        return Ingredient::find($id);
+        return Ingredient::find($this->getValueFromPrimaryKeys($primaryKeys, 0));
     }
 }

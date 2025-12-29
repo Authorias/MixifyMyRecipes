@@ -12,14 +12,17 @@ class RecipeTypeRepository extends Repository implements IRecipeTypeRepository
         return RecipeType::create($data);
     }
 
-    public function update($id, $data)
+    public function update(array $primaryKeys, $data)
     {
-        return RecipeType::where('id', $id)->update($data);
+        return RecipeType::where(
+            'id', 
+            $this->getValueFromPrimaryKeys($primaryKeys, 0)
+        )->update($data);
     }
 
-    public function delete($id)
+    public function delete(array $primaryKeys)
     {
-        return RecipeType::destroy($id);
+        return RecipeType::destroy($this->getValueFromPrimaryKeys($primaryKeys, 0));
     }
 
     public function readAll(): array
@@ -27,8 +30,8 @@ class RecipeTypeRepository extends Repository implements IRecipeTypeRepository
         return RecipeType::all()->toArray();
     }
 
-    public function readById($id): ?object
+    public function readById(array $primaryKeys): ?object
     {
-        return RecipeType::find($id);
+        return RecipeType::find($this->getValueFromPrimaryKeys($primaryKeys, 0));
     }
 }

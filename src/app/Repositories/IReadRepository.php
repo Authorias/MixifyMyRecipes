@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
-interface IReadRepository
+interface IReadRepository extends IRepository
 {
     function readAll(): array;
     
-    function readById($id): ?object;
+    function readById(array $primaryKeys): ?object;
 }

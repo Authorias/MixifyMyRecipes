@@ -12,14 +12,17 @@ class UnitRepository extends Repository implements IUnitRepository
         return Unit::create($data);
     }
 
-    public function update($id, $data)
+    public function update(array $primaryKeys, $data)
     {
-        return Unit::where('id', $id)->update($data);
+        return Unit::where(
+            'id', 
+            $this->getValueFromPrimaryKeys($primaryKeys, 0)
+        )->update($data);
     }
 
-    public function delete($id)
+    public function delete(array $primaryKeys)
     {
-        return Unit::destroy($id);
+        return Unit::destroy($this->getValueFromPrimaryKeys($primaryKeys, 0));
     }
 
     public function readAll(): array
@@ -27,8 +30,8 @@ class UnitRepository extends Repository implements IUnitRepository
         return Unit::all()->toArray();
     }
 
-    public function readById($id): ?object
+    public function readById(array $primaryKeys): ?object
     {
-        return Unit::find($id);
+        return Unit::find($this->getValueFromPrimaryKeys($primaryKeys, 0));
     }
 }

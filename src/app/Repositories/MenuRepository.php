@@ -12,14 +12,17 @@ class MenuRepository extends Repository implements IMenuRepository
         return Menu::create($data);
     }
 
-    public function update($id, $data)
+    public function update(array $primaryKeys, $data)
     {
-        return Menu::where('id', $id)->update($data);
+        return Menu::where(
+            'id', 
+            $this->getValueFromPrimaryKeys($primaryKeys, 0)
+        )->update($data);
     }
 
-    public function delete($id)
+    public function delete(array $primaryKeys)
     {
-        return Menu::destroy($id);
+        return Menu::destroy($this->getValueFromPrimaryKeys($primaryKeys, 0));
     }
 
     public function readAll(): array
@@ -27,8 +30,8 @@ class MenuRepository extends Repository implements IMenuRepository
         return Menu::all()->toArray();
     }
 
-    public function readById($id): ?object
+    public function readById(array $primaryKeys): ?object
     {
-        return Menu::find($id);
+        return Menu::find($this->getValueFromPrimaryKeys($primaryKeys, 0));
     }
 }

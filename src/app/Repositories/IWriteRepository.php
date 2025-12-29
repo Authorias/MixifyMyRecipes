@@ -2,11 +2,11 @@
 
 namespace App\Repositories;
 
-interface IWriteRepository
+interface IWriteRepository extends IRepository
 {
     function create($data);
     
-    function update($id, $data);
+    function update(array $primaryKeys, $data);
     
-    function delete($id);
+    function delete(array $primaryKeys);
 }

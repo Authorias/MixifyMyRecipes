@@ -105,7 +105,7 @@ class MenuController extends ApiController
 
         $item = RecipeMenu::where('menuid', $menuid)->orderBy('position')->get();
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, 200);
     }
 
     public function addRecipe(RecipeMenuRequest $request, $menuid)
@@ -123,25 +123,31 @@ class MenuController extends ApiController
 
         $item = RecipeMenu::create($data);
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, 200);
     }
 
-    public function updateRecipe(RecipeMenuRequest $request, $menuid)
+    /**
+     * Update the specified recipe in the menu.
+     *
+     * @param  \App\Http\Requests\RecipeMenuRequest  $request
+     * @param  string  $id  The recipe ID
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateRecipe(RecipeMenuRequest $request, $id)
     {
         $request->validate();
 
-        $menu = Menu::find($menuid);
+        $item = RecipeMenu::where('menuid', $id)
+            ->where('recipeid', $request->input('recipeid'))
+            ->first();
 
-        if (!$menu) {
-            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
+        if (!$item) {
+            return JsonResponse::error('Recipe niet gevonden in menu.', 404);
         }
 
-        $data = $request->all();
-        $data['menuid'] = $menuid;
-
-        $item = RecipeMenu::update($data);
+        $item->update($request->all());
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, 200);
     }
 
     public function deleteRecipe(string $menuid, string $recipeid)
