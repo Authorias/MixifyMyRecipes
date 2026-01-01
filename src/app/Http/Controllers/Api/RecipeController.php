@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Requests\RecipeRequest;
 use App\Http\Requests\IngredientRecipeRequest;
 use App\Models\Recipe;
-use App\Models\IngredientRecipe;
+use App\Models\RecipeIngredient;
 
 use App\Http\Controllers\Api\Converters\RecipeJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
@@ -121,7 +121,7 @@ class RecipeController extends ApiController
         $data = $request->all();
         $data['recipeid'] = $recipeid;
 
-        $item = IngredientRecipe::create($data);
+        $item = RecipeIngredient::create($data);
         
         return JsonResponse::success($item, 201);
     }
@@ -139,14 +139,14 @@ class RecipeController extends ApiController
         $data = $request->all();
         $data['recipeid'] = $recipeid;
 
-        $item = IngredientRecipe::update($data);
+        $item = RecipeIngredient::update($data);
         
         return JsonResponse::success($item, 201);
     }
 
     public function deleteIngredient(string $recipeid, string $ingredientid)
     {
-        $item = IngredientRecipe::where('recipeid', $recipeid)
+        $item = RecipeIngredient::where('recipeid', $recipeid)
             ->where('ingredientid', $ingredientid)
             ->first();
 
@@ -162,7 +162,7 @@ class RecipeController extends ApiController
     {
          $result = [];
 
-        foreach (IngredientRecipe::where('recipeid', $recipeid)->get() as $item)
+        foreach (RecipeIngredient::where('recipeid', $recipeid)->get() as $item)
         {
             $result[] = [
                 'id' => $item->ingredientid, 

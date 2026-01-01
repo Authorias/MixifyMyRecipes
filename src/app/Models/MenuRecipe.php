@@ -4,16 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-use App\Models\Ingredient;
+use App\Models\Menu;
 use App\Models\Recipe;
-use App\Models\Unit;
 
-class IngredientRecipe extends Model
+class MenuRecipe extends Model
 {
-    /** @use HasFactory<\Database\Factories\IngredientFactory> */
+    /** @use HasFactory<\Database\Factories\MenuRecipeFactory> */
     use HasFactory;
 
     /**
@@ -22,28 +20,22 @@ class IngredientRecipe extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'menuid',
         'recipeid',
-        'ingredientid',
-        'unitid',
-        'quantity',
+        'position',
     ];
 
-    protected $table = 'recipeingredients';
+    protected $table = 'menurecipes';
 
     public $timestamps = true;
 
-    public function ingredient(): BelongsTo
+    public function menu(): BelongsTo
     {
-        return $this->belongsTo(Ingredient::class, 'ingredientid');
+        return $this->belongsTo(Menu::class, 'menuid');
     }
 
     public function recipe(): BelongsTo
     {
         return $this->belongsTo(Recipe::class, 'recipeid');
-    }
-
-    public function unit(): HasOne
-    {
-        return $this->hasOne(Unit::class, 'id', 'unitid');
     }
 }
