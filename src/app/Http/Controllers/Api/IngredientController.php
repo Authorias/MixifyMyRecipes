@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\IngredientRequest;
-
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\Converters\IngredientJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
+use App\Http\Requests\IngredientRequest;
 use App\Repositories\IIngredientRepository;
 
 class IngredientController extends ApiController {

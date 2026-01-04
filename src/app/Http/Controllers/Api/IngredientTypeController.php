@@ -2,25 +2,24 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\IngredientTypeRequest;
-use App\Models\IngredientType;
-
 use App\Http\Controllers\Api\Converters\IngredientTypeJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
+use App\Http\Requests\IngredientTypeRequest;
+use App\Repositories\IIngredientTypeRepository;
 
-class IngredientTypeController extends ApiController
-{
+class IngredientTypeController extends ApiController {
     const INGREDIENT_TYPE_NOT_FOUND_MESSAGE = 'Ingredient type niet gevonden.';
+
+    private IIngredientTypeRepository $ingredientTypeRepository;
 
     /**
      * GET : api/ingredienttypes
      * Get a listing of ingredient types.
      */
-    public function index()
-    {
+    public function index() {
         $items = [];
 
-        foreach (IngredientType::all() as $ingredientType) {
+        foreach ($this->ingredientTypeRepository->getAll() as $ingredientType) {
             $items[] = $this->jsonConverter->convert($ingredientType, JsonOptions::None);
         }
 
@@ -31,9 +30,8 @@ class IngredientTypeController extends ApiController
      * GET : api/ingredienttypes/{id}
      * Get a single ingredient type by ID.
      */
-    public function get($id)
-    {
-        $item = IngredientType::find($id);
+    public function get($id) {
+        $item = $this->ingredientTypeRepository->getById([$id]);
 
         return !$item
             ? JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, 404)
@@ -48,7 +46,7 @@ class IngredientTypeController extends ApiController
     {
         $request->validate();
 
-        $item = IngredientType::create($request->all());
+        $item = $this->ingredientTypeRepository->create($request->all());
         
         return JsonResponse::success($item, 201);
     }
@@ -61,7 +59,7 @@ class IngredientTypeController extends ApiController
     {
         $request->validate();
 
-        $item = IngredientType::find($id);
+        $item = $this->ingredientTypeRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, 404);
@@ -78,7 +76,7 @@ class IngredientTypeController extends ApiController
      */
     public function delete($id)
     {
-        $item = IngredientType::find($id);
+        $item = $this->ingredientTypeRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, 404);
@@ -93,8 +91,8 @@ class IngredientTypeController extends ApiController
         return JsonResponse::success(null, 204);
     }
 
-    public function __construct(JsonConverter $jsonConverter)
-    {
+    public function __construct(JsonConverter $jsonConverter, IIngredientTypeRepository $ingredientTypeRepository) {
         parent::__construct($jsonConverter);
+        $this->ingredientTypeRepository = $ingredientTypeRepository;
     }
 }

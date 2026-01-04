@@ -2,30 +2,25 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-
-use App\Models\RecipeType;
-
 use App\Http\Controllers\Api\Converters\RecipeTypeJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
+use App\Http\Requests\RecipeTypeRequest;
+use App\Repositories\IRecipeTypeRepository;
 
-class RecipeTypeController extends ApiController
-{
+
+class RecipeTypeController extends ApiController {
     const RECIPE_TYPE_NOT_FOUND_MESSAGE = 'Recept type niet gevonden.';
 
-    const VALIDATION_ARRAY = [
-        'name' => 'required'
-    ];
+    private IRecipeTypeRepository $recipeTypeRepository;
 
     /**
      * GET : api/recipetypes
      * Get a listing of recipe types.
      */
-    public function index()
-    {
+    public function index() {
         $items = [];
 
-        foreach (RecipeType::all() as $recipeType) {
+        foreach ($this->recipeTypeRepository->getAll() as $recipeType) {
             $items[] = $this->jsonConverter->convert($recipeType, JsonOptions::None);
         }
 
@@ -36,9 +31,8 @@ class RecipeTypeController extends ApiController
      * GET : api/recipetypes/{id}
      * Get a single recipe type by ID.
      */
-    public function get($id)
-    {
-        $item = RecipeType::find($id);
+    public function get($id) {
+        $item = $this->recipeTypeRepository->getById([$id]);
 
         return !$item
             ? JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, 404)
@@ -50,11 +44,10 @@ class RecipeTypeController extends ApiController
      * POST : api/recipetypes
      * Store a newly created recipe type in the database.
      */
-    public function add(Request $request)
-    {
-        $request->validate(self::VALIDATION_ARRAY);
+    public function add(RecipeTypeRequest $request) {
+        $request->validate();
 
-        $item = RecipeType::create($request->all());
+        $item = $this->recipeTypeRepository->create($request->all());
         
         return JsonResponse::success($item, 201);
     }
@@ -63,11 +56,10 @@ class RecipeTypeController extends ApiController
      * PUT : api/recipetypes/{id}
      * Update the specified recipe type in the database.
      */
-    public function update(Request $request, $id)
-    {
-        $request->validate(self::VALIDATION_ARRAY);
+    public function update(RecipeTypeRequest $request, $id) {
+        $request->validate();
 
-        $item = RecipeType::find($id);
+        $item = $this->recipeTypeRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, 404);
@@ -82,9 +74,8 @@ class RecipeTypeController extends ApiController
      * DELETE : api/recipetypes/{id}
      * Remove the specified recipe type from the database.
      */
-    public function delete($id)
-    {
-        $item = RecipeType::find($id);
+    public function delete($id) {
+        $item = $this->recipeTypeRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, 404);
@@ -99,8 +90,8 @@ class RecipeTypeController extends ApiController
         return JsonResponse::success(null, 204);
     }
 
-    public function __construct(JsonConverter $jsonConverter)
-    {
+    public function __construct(JsonConverter $jsonConverter, IRecipeTypeRepository $recipeTypeRepository) {
         parent::__construct($jsonConverter);
+        $this->recipeTypeRepository = $recipeTypeRepository;
     }
 }

@@ -2,14 +2,15 @@
 
 namespace App\Repositories;
 
+use Illuminate\Database\Eloquent\Collection;
+
 use App\Models\MenuRecipe;
 use App\Repositories\IMenuRecipeRepository;
 
 class MenuRecipeRepository extends Repository implements IMenuRecipeRepository {
-    public function getByMenuId(int $menuId) : array {
+    public function getByMenuId(int $menuId) : Collection {
         return $this->getModelName()::where('menuid', $menuId)
-            ->get()
-            ->toArray();
+            ->get();
     }
 
     public function getById(array $primaryKeys) : ?object {

@@ -2,27 +2,27 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\RecipeRequest;
-use App\Http\Requests\IngredientRecipeRequest;
-use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 
 use App\Http\Controllers\Api\Converters\RecipeJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
+use App\Http\Requests\RecipeRequest;
+use App\Http\Requests\RecipeIngredientRequest;
+use App\Repositories\IRecipeRepository;
 
-class RecipeController extends ApiController
-{
+class RecipeController extends ApiController {
     const RECIPE_NOT_FOUND_MESSAGE = 'Recept niet gevonden.';
+
+    private IRecipeRepository $recipeRepository;
 
     /**
      * GET : api/recipes
      * Get a listing of recipes.
      */
-    public function index()
-    {
+    public function index() {
         $items = [];
 
-        foreach (Recipe::all() as $recipe) {
+        foreach ($this->recipeRepository->getAll() as $recipe) {
             $items[] = $this->jsonConverter->convert($recipe, JsonOptions::None);
         }
 
@@ -33,9 +33,8 @@ class RecipeController extends ApiController
      * GET : api/recipes/{id}
      * Get a single recipe by ID.
      */
-    public function get($id)
-    {
-        $item = Recipe::find($id);
+    public function get($id) {
+        $item = $this->recipeRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
@@ -50,11 +49,10 @@ class RecipeController extends ApiController
      * POST : api/recipes
      * Store a newly created recipe in the database.
      */
-    public function add(RecipeRequest $request)
-    {
+    public function add(RecipeRequest $request) {
         $request->validate();
 
-        $item = Recipe::create($request->all());
+        $item = $this->recipeRepository->create($request->all());
         
         return JsonResponse::success($item, 201);
     }
@@ -63,11 +61,10 @@ class RecipeController extends ApiController
      * PUT : api/recipes/{id}
      * Update the specified recipe in the database.
      */
-    public function update(RecipeRequest $request, $id)
-    {
+    public function update(RecipeRequest $request, $id) {
         $request->validate();
 
-        $item = Recipe::find($id);
+        $item = $this->recipeRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
@@ -82,9 +79,8 @@ class RecipeController extends ApiController
      * DELETE : api/recipes/{id}
      * Remove the specified recipe from the database.
      */
-    public function delete($id)
-    {
-        $item = Recipe::find($id);
+    public function delete($id) {
+        $item = $this->recipeRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
@@ -95,9 +91,9 @@ class RecipeController extends ApiController
         return JsonResponse::success(null, 204);
     }
 
-    public function getIngredients(string $recipeid)
-    {
-        $recipe = Recipe::find($recipeid);
+    public function getIngredients(string $recipeid) {
+
+        $recipe = $this->recipeRepository->getById([$recipeid]);
 
         if (!$recipe) {
             return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
@@ -108,11 +104,10 @@ class RecipeController extends ApiController
         return JsonResponse::success($ingredients, 200);
     }
 
-    public function addIngredient(IngredientRecipeRequest $request, string $recipeid)
-    {
+    public function addIngredient(RecipeIngredientRequest $request, string $recipeid) {
         $request->validate();
 
-        $recipe = Recipe::find($recipeid);
+        $recipe = $this->recipeRepository->getById([$recipeid]);
 
         if (!$recipe) {
             return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
@@ -126,11 +121,10 @@ class RecipeController extends ApiController
         return JsonResponse::success($item, 201);
     }
 
-    public function updateIngredient(IngredientRecipeRequest $request, string $recipeid)
-    {
+    public function updateIngredient(RecipeIngredientRequest $request, string $recipeid) {
         $request->validate();
 
-        $recipe = Recipe::find($recipeid);
+        $recipe = $this->recipeRepository->getById([$recipeid]);
         
         if (!$recipe) {
             return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
@@ -144,8 +138,7 @@ class RecipeController extends ApiController
         return JsonResponse::success($item, 201);
     }
 
-    public function deleteIngredient(string $recipeid, string $ingredientid)
-    {
+    public function deleteIngredient(string $recipeid, string $ingredientid) {
         $item = RecipeIngredient::where('recipeid', $recipeid)
             ->where('ingredientid', $ingredientid)
             ->first();
@@ -158,8 +151,7 @@ class RecipeController extends ApiController
         return JsonResponse::success(null, 204);
     }
 
-    private function loadIngredients(string $recipeid)
-    {
+    private function loadIngredients(string $recipeid) {
          $result = [];
 
         foreach (RecipeIngredient::where('recipeid', $recipeid)->get() as $item)
@@ -179,8 +171,8 @@ class RecipeController extends ApiController
         return $result;
    }
 
-    public function __construct(JsonConverter $jsonConverter)
-    {
+    public function __construct(JsonConverter $jsonConverter, IRecipeRepository $recipeRepository) {
         parent::__construct($jsonConverter);
+        $this->recipeRepository = $recipeRepository;
     }
 }

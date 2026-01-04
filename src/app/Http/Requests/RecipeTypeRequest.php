@@ -2,7 +2,7 @@
 
 namespace App\Http\Requests;
 
-class IngredientRecipeRequest extends BaseRequest
+class RecipeTypeRequest extends BaseRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -12,10 +12,7 @@ class IngredientRecipeRequest extends BaseRequest
     public function rules(): array
     {
         return [
-            'ingredientid' => 'required|exists:ingredients,id',
-            'recipeid' => 'required|exists:recipes,id',
-            'unitid' => 'required|exists:units,id',
-            'quantity' => 'required|integer',
+            'name' => 'required|string|max:100',
         ];
     }
 }

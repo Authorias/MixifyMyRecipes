@@ -2,21 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-
-use App\Http\Requests\UnitRequest;
-use App\Models\Unit;
-
 use App\Http\Controllers\Api\Converters\UnitJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
+use App\Http\Requests\UnitRequest;
+use App\Repositories\IUnitRepository;
 
-class UnitController extends ApiController
-{
+class UnitController extends ApiController {
     const UNIT_NOT_FOUND_MESSAGE = 'Unit niet gevonden.';
 
-    const VALIDATION_ARRAY = [
-        'name' => 'required'
-    ];
+    private IUnitRepository $unitRepository;
 
     /**
      * GET : api/units
@@ -26,7 +20,7 @@ class UnitController extends ApiController
     {
         $items = [];
 
-        foreach (Unit::all() as $unit) {
+        foreach ($this->unitRepository->getAll() as $unit) {
             $items[] = $this->jsonConverter->convert($unit, JsonOptions::None);
         }
 
@@ -37,9 +31,8 @@ class UnitController extends ApiController
      * GET : api/units/{id}
      * Get a single unit by ID.
      */
-    public function get($id)
-    {
-        $item = Unit::find($id);
+    public function get($id) {
+        $item = $this->unitRepository->getById([$id]);
 
         return !$item
             ? JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, 404)
@@ -51,11 +44,10 @@ class UnitController extends ApiController
      * POST : api/units
      * Store a newly created unit in the database.
      */
-    public function add(UnitRequest $request)
-    {
-        $request->validate(self::VALIDATION_ARRAY);
+    public function add(UnitRequest $request) {
+        $request->validate();
 
-        $item = Unit::create($request->all());
+        $item = $this->unitRepository->create($request->all());
         
         return JsonResponse::success($item, 201);
     }
@@ -64,11 +56,10 @@ class UnitController extends ApiController
      * PUT : api/units/{id}
      * Update the specified unit in the database.
      */
-    public function update(UnitRequest $request, $id)
-    {
-        $request->validate(self::VALIDATION_ARRAY);
+    public function update(UnitRequest $request, $id) {
+        $request->validate();
 
-        $item = Unit::find($id);
+        $item = $this->unitRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, 404);
@@ -83,9 +74,8 @@ class UnitController extends ApiController
      * DELETE : api/units/{id}
      * Remove the specified unit from the database.
      */
-    public function delete($id)
-    {
-        $item = Unit::find($id);
+    public function delete($id) {
+        $item = $this->unitRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, 404);
@@ -100,8 +90,8 @@ class UnitController extends ApiController
         return JsonResponse::success(null, 204);
     }
 
-    public function __construct(JsonConverter $jsonConverter)
-    {
+    public function __construct(JsonConverter $jsonConverter, IUnitRepository $unitRepository) {
         parent::__construct($jsonConverter);
+        $this->unitRepository = $unitRepository;
     }
 }

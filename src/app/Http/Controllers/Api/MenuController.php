@@ -2,27 +2,27 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Requests\MenuRequest;
-use App\Http\Requests\RecipeMenuRequest;
-use App\Models\Menu;
-use App\Models\RecipeMenu;
+use App\Models\MenuRecipe;
 
 use App\Http\Controllers\Api\Converters\MenuJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
+use App\Http\Requests\MenuRequest;
+use App\Http\Requests\MenuRecipeRequest;
+use App\Repositories\IMenuRepository;
 
-class MenuController extends ApiController
-{
+class MenuController extends ApiController {
     const MENU_NOT_FOUND_MESSAGE = 'Menu niet gevonden.';
+
+    private IMenuRepository $menuRepository;
 
     /**
      * GET : api/menus
      * Get a listing of menus.
      */
-    public function index()
-    {
+    public function index() {
         $items = [];
 
-        foreach (Menu::all() as $menu) {
+        foreach ($this->menuRepository->getAll() as $menu) {
             $items[] = $this->jsonConverter->convert($menu, JsonOptions::None);
         }
 
@@ -33,9 +33,8 @@ class MenuController extends ApiController
      * GET : api/menus/{id}
      * Get a single menu by ID.
      */
-    public function get($id)
-    {
-        $item = Menu::find($id);
+    public function get($id) {
+        $item = $this->menuRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
@@ -54,7 +53,7 @@ class MenuController extends ApiController
     {
         $request->validate();
 
-        $item = Menu::create($request->all());
+        $item = $this->menuRepository->create($request->all());
         
         return JsonResponse::success($item, 201);
     }
@@ -67,7 +66,7 @@ class MenuController extends ApiController
     {
         $request->validate();
 
-        $item = Menu::find($id);
+        $item = $this->menuRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
@@ -84,7 +83,7 @@ class MenuController extends ApiController
      */
     public function delete($id)
     {
-        $item = Menu::find($id);
+        $item = $this->menuRepository->getById([$id]);
 
         if (!$item) {
             return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
@@ -97,31 +96,31 @@ class MenuController extends ApiController
 
     public function getRecipes(string $menuid)
     {
-        $menu = Menu::find($menuid);
+        $menu = $this->menuRepository->getById([$menuid]);
 
-        if (!$menu) {
+        if ($menu === null) {
             return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
         }
 
-        $item = RecipeMenu::where('menuid', $menuid)->orderBy('position')->get();
+        $item = MenuRecipe::where('menuid', $menuid)->orderBy('position')->get();
         
         return JsonResponse::success($item, 200);
     }
 
-    public function addRecipe(RecipeMenuRequest $request, $menuid)
+    public function addRecipe(MenuRecipeRequest $request, $menuid)
     {
         $request->validate();
 
-        $menu = Menu::find($menuid);
+        $menu = $this->menuRepository->getById([$menuid]);
 
-        if (!$menu) {
+        if ($menu === null) {
             return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
         }
 
         $data = $request->all();
         $data['menuid'] = $menuid;
 
-        $item = RecipeMenu::create($data);
+        $item = MenuRecipe::create($data);
         
         return JsonResponse::success($item, 200);
     }
@@ -129,15 +128,15 @@ class MenuController extends ApiController
     /**
      * Update the specified recipe in the menu.
      *
-     * @param  \App\Http\Requests\RecipeMenuRequest  $request
+     * @param  \App\Http\Requests\MenuRecipeRequest  $request
      * @param  string  $id  The recipe ID
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateRecipe(RecipeMenuRequest $request, $id)
+    public function updateRecipe(MenuRecipeRequest $request, $id)
     {
         $request->validate();
 
-        $item = RecipeMenu::where('menuid', $id)
+        $item = MenuRecipe::where('menuid', $id)
             ->where('recipeid', $request->input('recipeid'))
             ->first();
 
@@ -152,7 +151,7 @@ class MenuController extends ApiController
 
     public function deleteRecipe(string $menuid, string $recipeid)
     {
-        $item = RecipeMenu::where('menuid', $menuid)
+        $item = MenuRecipe::where('menuid', $menuid)
             ->where('recipeid', $recipeid)
             ->first();
 
@@ -168,7 +167,7 @@ class MenuController extends ApiController
     {
          $result = [];
 
-        foreach (RecipeMenu::where('menuid', $menuid)->get() as $item)
+        foreach (MenuRecipe::where('menuid', $menuid)->get() as $item)
         {
             $result[] = [
                 'id' => $item->recipeid, 
@@ -186,8 +185,8 @@ class MenuController extends ApiController
         return $result;
    }
 
-    public function __construct(JsonConverter $jsonConverter)
-    {
+    public function __construct(JsonConverter $jsonConverter, IMenuRepository $menuRepository) {
         parent::__construct($jsonConverter);
+        $this->menuRepository = $menuRepository;
     }
 }
