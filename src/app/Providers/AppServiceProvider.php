@@ -24,6 +24,10 @@ use App\Repositories\IIngredientRepository;
 use App\Repositories\IngredientRepository;
 use App\Repositories\IIngredientTypeRepository;
 use App\Repositories\IngredientTypeRepository;
+use App\Repositories\IMenuRecipeRepository;
+use App\Repositories\MenuRecipeRepository;
+use App\Repositories\IRecipeIngredientRepository;
+use App\Repositories\RecipeIngredientRepository;
 use App\Repositories\IRecipeRepository;
 use App\Repositories\RecipeRepository;
 use App\Repositories\IRecipeTypeRepository;
@@ -86,12 +90,14 @@ class AppServiceProvider extends ServiceProvider
     private function registerRepositories()
     {
         // Register repositories
+        $this->app->bind(IUnitRepository::class, UnitRepository::class);
         $this->app->bind(IIngredientRepository::class, IngredientRepository::class);
         $this->app->bind(IIngredientTypeRepository::class, IngredientTypeRepository::class);
         $this->app->bind(IRecipeRepository::class, RecipeRepository::class);
         $this->app->bind(IRecipeTypeRepository::class, RecipeTypeRepository::class);
+        $this->app->bind(IRecipeIngredientRepository::class, RecipeIngredientRepository::class);
         $this->app->bind(IMenuRepository::class, MenuRepository::class);
-        $this->app->bind(IUnitRepository::class, UnitRepository::class);
+        $this->app->bind(IMenuRecipeRepository::class, MenuRecipeRepository::class);
     }
 
     private function registerJsonConverters()
