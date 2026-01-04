@@ -2,9 +2,10 @@
 
 namespace App\Repositories;
 
-interface IReadRepository extends IRepository
-{
-    function readAll(): array;
+use Illuminate\Database\Eloquent\Collection;
+
+interface IReadRepository {
+    function getAll() : Collection;
     
-    function readById(array $primaryKeys): ?object;
+    function getById(array $primaryKeys) : ?object;
 }

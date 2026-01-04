@@ -2,6 +2,5 @@
 
 namespace App\Repositories;
 
-interface IRecipeRepository extends IReadWriteRepository
-{
+interface IRecipeRepository extends IReadWriteRepository {
 }

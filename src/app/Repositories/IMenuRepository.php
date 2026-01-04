@@ -2,6 +2,5 @@
 
 namespace App\Repositories;
 
-interface IMenuRepository extends IReadWriteRepository
-{
+interface IMenuRepository extends IReadWriteRepository {
 }

@@ -3,24 +3,25 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\IngredientRequest;
-use App\Models\Ingredient;
 
+use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\Converters\IngredientJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
+use App\Repositories\IIngredientRepository;
 
-class IngredientController extends ApiController
-{
+class IngredientController extends ApiController {
     const INGREDIENT_NOT_FOUND_MESSAGE = 'Ingredient niet gevonden.';
+
+    private IIngredientRepository $ingredientRepository;
 
     /**
      * GET : api/ingredients
      * Get a listing of ingredients.
      */
-    public function index()
-    {
+    public function index() {
         $items = [];
 
-        foreach (Ingredient::all() as $ingredient) {
+        foreach ($this->ingredientRepository->getAll() as $ingredient) {
             $items[] = $this->jsonConverter->convert($ingredient, JsonOptions::None);
         }
 
@@ -31,11 +32,10 @@ class IngredientController extends ApiController
      * GET : api/ingredients/{id}
      * Get a single ingredient by ID.
      */
-    public function get($id)
-    {
-        $item = Ingredient::find($id);
+    public function get($id) {
+        $item = $this->ingredientRepository->getById([$id]);
 
-        return !$item
+        return $item === null
             ? JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, 404)
             : JsonResponse::success($this->jsonConverter->convert($item, JsonOptions::None), 200);
     }
@@ -45,11 +45,10 @@ class IngredientController extends ApiController
      * POST : api/ingredients
      * Store a newly created ingredient in the database.
      */
-    public function add(IngredientRequest $request)
-    {
+    public function add(IngredientRequest $request) {
         $request->validate();
 
-        $item = Ingredient::create($request->all());
+        $item = $this->ingredientRepository->create($request->all());
         
         return JsonResponse::success($item, 201);
     }
@@ -62,9 +61,9 @@ class IngredientController extends ApiController
     {
         $request->validate();
 
-        $item = Ingredient::find($id);
+        $item = $this->ingredientRepository->getById([$id]);
 
-        if (!$item) {
+        if ($item === null) {
             return JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, 404);
         }
 
@@ -79,9 +78,9 @@ class IngredientController extends ApiController
      */
     public function delete($id)
     {
-        $item = Ingredient::find($id);
+        $item = $this->ingredientRepository->getById([$id]);
 
-        if (!$item) {
+        if ($item === null) {
             return JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, 404);
         }
 
@@ -90,8 +89,9 @@ class IngredientController extends ApiController
         return JsonResponse::success(null, 204);
     }
 
-    public function __construct(JsonConverter $jsonConverter)
+    public function __construct(JsonConverter $jsonConverter, IIngredientRepository $ingredientRepository)
     {
         parent::__construct($jsonConverter);
+        $this->ingredientRepository = $ingredientRepository;
     }
 }

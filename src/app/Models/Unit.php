@@ -6,11 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-use App\Models\Ingredient;
-use App\Models\IngredientRecipe;
+use App\Models\RecipeIngredient;
 
-class Unit extends Model
-{
+class Unit extends Model {
     /** @use HasFactory<\Database\Factories\UnitFactory> */
     use HasFactory;
 
@@ -28,8 +26,8 @@ class Unit extends Model
 
     public $timestamps = true;
 
-    public function ingredientRecipes(): HasMany
+    public function recipeIngredients(): HasMany
     {
-        return $this->hasMany(IngredientRecipe::class, 'unitid');
+        return $this->hasMany(RecipeIngredient::class, 'unitid');
     }
 }

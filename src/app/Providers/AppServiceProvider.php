@@ -37,12 +37,11 @@ use App\Repositories\MenuRepository;
 use App\Repositories\IUnitRepository;
 use App\Repositories\UnitRepository;
 
-class AppServiceProvider extends ServiceProvider
-{
+class AppServiceProvider extends ServiceProvider {
     /**
      * Register any application services.
      */
-    public function register(): void
+    public function register() : void
     {
         $this->registerRepositories();
 
@@ -54,13 +53,11 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
-    {
+    public function boot(): void {
         SiteThrottler::configure();
     }
 
-    private function registerControllers()
-    {
+    private function registerControllers() : void {
         // Bind specific converters when controllers are resolved
         $this->app->when(RecipeController::class)
             ->needs(JsonModelConverter::class)
@@ -87,8 +84,7 @@ class AppServiceProvider extends ServiceProvider
             ->give(UnitJsonModelConverter::class);
     }
 
-    private function registerRepositories()
-    {
+    private function registerRepositories() : void {
         // Register repositories
         $this->app->bind(IUnitRepository::class, UnitRepository::class);
         $this->app->bind(IIngredientRepository::class, IngredientRepository::class);
@@ -100,8 +96,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IMenuRecipeRepository::class, MenuRecipeRepository::class);
     }
 
-    private function registerJsonConverters()
-    {
+    private function registerJsonConverters() : void {
         // Register converters as singletons for efficiency
         $this->app->singleton(IngredientTypeJsonModelConverter::class);
         $this->app->singleton(RecipeTypeJsonModelConverter::class);

@@ -2,9 +2,8 @@
 
 namespace App\Repositories;
 
-interface IWriteRepository extends IRepository
-{
-    function create($data);
+interface IWriteRepository {
+    function create($data) : ?object;
     
     function update(array $primaryKeys, $data) : ?object;
     

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use App\Models\IngredientType;
-use App\Models\IngredientRecipe;
+use App\Models\RecipeIngredient;
 
 class Ingredient extends Model
 {
@@ -36,6 +36,6 @@ class Ingredient extends Model
     
     public function ingredientRecipes(): HasMany
     {
-        return $this->hasMany(IngredientRecipe::class);
+        return $this->hasMany(RecipeIngredient::class);
     }
 }

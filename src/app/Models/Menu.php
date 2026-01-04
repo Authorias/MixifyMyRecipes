@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-use App\Models\RecipeMenu;
+use App\Models\MenuRecipe;
 
 class Menu extends Model
 {
@@ -29,8 +29,8 @@ class Menu extends Model
 
     public $timestamps = true;
 
-    public function recipeMenus(): HasMany
+    public function menuRecipes(): HasMany
     {
-        return $this->hasMany(RecipeMenu::class, 'menuid')->orderBy('position');
+        return $this->hasMany(MenuRecipe::class, 'menuid')->orderBy('position');
     }
 }

@@ -6,8 +6,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 
-class SiteThrottler
-{
+class SiteThrottler {
     const THROTTLE_API = 100;
     const THROTTLE_API_USER = 200;
 
@@ -18,8 +17,7 @@ class SiteThrottler
 
     const THROTTLE_AUTHENTICATE = 15;
 
-    public static function configure() : void
-    {
+    public static function configure() : void {
         RateLimiter::for('api', function (Request $request) {
             $user = $request->user();
 

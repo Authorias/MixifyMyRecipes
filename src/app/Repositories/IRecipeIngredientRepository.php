@@ -2,7 +2,6 @@
 
 namespace App\Repositories;
 
-interface IRecipeIngredientRepository extends IReadWriteRepository
-{
-    function readByRecipeId(int $recipeId): array;
+interface IRecipeIngredientRepository extends IReadWriteRepository {
+    function getByRecipeId(int $recipeId) : array;
 }
