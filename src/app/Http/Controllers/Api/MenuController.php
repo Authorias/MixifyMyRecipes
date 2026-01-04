@@ -9,11 +9,13 @@ use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions
 use App\Http\Requests\MenuRequest;
 use App\Http\Requests\MenuRecipeRequest;
 use App\Repositories\IMenuRepository;
+use App\Repositories\IMenuRecipeRepository;
 
 class MenuController extends ApiController {
     const MENU_NOT_FOUND_MESSAGE = 'Menu niet gevonden.';
 
     private IMenuRepository $menuRepository;
+    private IMenuRecipeRepository $menuRecipeRepository;
 
     /**
      * GET : api/menus
@@ -185,8 +187,10 @@ class MenuController extends ApiController {
         return $result;
    }
 
-    public function __construct(JsonConverter $jsonConverter, IMenuRepository $menuRepository) {
+    public function __construct(JsonConverter $jsonConverter, IMenuRepository $menuRepository, IMenuRecipeRepository $menuRecipeRepository) {
         parent::__construct($jsonConverter);
+        
         $this->menuRepository = $menuRepository;
+        $this->menuRecipeRepository = $menuRecipeRepository;
     }
 }

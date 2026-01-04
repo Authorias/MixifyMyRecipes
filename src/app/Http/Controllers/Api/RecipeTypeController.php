@@ -92,6 +92,7 @@ class RecipeTypeController extends ApiController {
 
     public function __construct(JsonConverter $jsonConverter, IRecipeTypeRepository $recipeTypeRepository) {
         parent::__construct($jsonConverter);
+
         $this->recipeTypeRepository = $recipeTypeRepository;
     }
 }

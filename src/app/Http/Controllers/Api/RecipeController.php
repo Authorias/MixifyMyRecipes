@@ -9,11 +9,13 @@ use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions
 use App\Http\Requests\RecipeRequest;
 use App\Http\Requests\RecipeIngredientRequest;
 use App\Repositories\IRecipeRepository;
+use App\Repositories\IRecipeIngredientRepository;
 
 class RecipeController extends ApiController {
     const RECIPE_NOT_FOUND_MESSAGE = 'Recept niet gevonden.';
 
     private IRecipeRepository $recipeRepository;
+    private IRecipeIngredientRepository $recipeIngredientRepository;
 
     /**
      * GET : api/recipes
@@ -171,8 +173,10 @@ class RecipeController extends ApiController {
         return $result;
    }
 
-    public function __construct(JsonConverter $jsonConverter, IRecipeRepository $recipeRepository) {
+    public function __construct(JsonConverter $jsonConverter, IRecipeRepository $recipeRepository, IRecipeIngredientRepository $recipeIngredientRepository) {
         parent::__construct($jsonConverter);
+
         $this->recipeRepository = $recipeRepository;
+        $this->recipeIngredientRepository = $recipeIngredientRepository;
     }
 }

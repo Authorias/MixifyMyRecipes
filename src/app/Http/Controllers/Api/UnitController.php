@@ -92,6 +92,7 @@ class UnitController extends ApiController {
 
     public function __construct(JsonConverter $jsonConverter, IUnitRepository $unitRepository) {
         parent::__construct($jsonConverter);
+
         $this->unitRepository = $unitRepository;
     }
 }

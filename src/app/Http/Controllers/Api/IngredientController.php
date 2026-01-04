@@ -91,6 +91,7 @@ class IngredientController extends ApiController {
     public function __construct(JsonConverter $jsonConverter, IIngredientRepository $ingredientRepository)
     {
         parent::__construct($jsonConverter);
+ 
         $this->ingredientRepository = $ingredientRepository;
     }
 }
