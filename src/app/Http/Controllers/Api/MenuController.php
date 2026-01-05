@@ -51,8 +51,7 @@ class MenuController extends ApiController {
      * POST : api/menus
      * Store a newly created menu in the database.
      */
-    public function add(MenuRequest $request)
-    {
+    public function add(MenuRequest $request) {
         $request->validate();
 
         $item = $this->menuRepository->create($request->all());
@@ -64,8 +63,7 @@ class MenuController extends ApiController {
      * PUT : api/menus/{id}
      * Update the specified menu in the database.
      */
-    public function update(MenuRequest $request, $id)
-    {
+    public function update(MenuRequest $request, $id) {
         $request->validate();
 
         $item = $this->menuRepository->getById([$id]);
@@ -83,8 +81,7 @@ class MenuController extends ApiController {
      * DELETE : api/menus/{id}
      * Remove the specified menu from the database.
      */
-    public function delete($id)
-    {
+    public function delete($id) {
         $item = $this->menuRepository->getById([$id]);
 
         if (!$item) {
@@ -96,8 +93,7 @@ class MenuController extends ApiController {
         return JsonResponse::success(null, 204);
     }
 
-    public function getRecipes(string $menuid)
-    {
+    public function getRecipes(string $menuid) {
         $menu = $this->menuRepository->getById([$menuid]);
 
         if ($menu === null) {
@@ -109,8 +105,7 @@ class MenuController extends ApiController {
         return JsonResponse::success($item, 200);
     }
 
-    public function addRecipe(MenuRecipeRequest $request, $menuid)
-    {
+    public function addRecipe(MenuRecipeRequest $request, $menuid) {
         $request->validate();
 
         $menu = $this->menuRepository->getById([$menuid]);
@@ -134,8 +129,7 @@ class MenuController extends ApiController {
      * @param  string  $id  The recipe ID
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateRecipe(MenuRecipeRequest $request, $id)
-    {
+    public function updateRecipe(MenuRecipeRequest $request, $id) {
         $request->validate();
 
         $item = MenuRecipe::where('menuid', $id)
@@ -151,14 +145,12 @@ class MenuController extends ApiController {
         return JsonResponse::success($item, 200);
     }
 
-    public function deleteRecipe(string $menuid, string $recipeid)
-    {
+    public function deleteRecipe(string $menuid, string $recipeid) {
         $item = MenuRecipe::where('menuid', $menuid)
             ->where('recipeid', $recipeid)
             ->first();
 
-        if ($item) 
-        {
+        if ($item) {
             $item->delete();
         }
         

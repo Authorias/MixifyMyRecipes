@@ -56,8 +56,7 @@ class IngredientController extends ApiController {
      * PUT : api/ingredients/{id}
      * Update the specified ingredient in the database.
      */
-    public function update(IngredientRequest $request, $id)
-    {
+    public function update(IngredientRequest $request, $id) {
         $request->validate();
 
         $item = $this->ingredientRepository->getById([$id]);
@@ -75,8 +74,7 @@ class IngredientController extends ApiController {
      * DELETE : api/ingredients/{id}
      * Remove the specified ingredient from the database.
      */
-    public function delete($id)
-    {
+    public function delete($id) {
         $item = $this->ingredientRepository->getById([$id]);
 
         if ($item === null) {
@@ -88,8 +86,7 @@ class IngredientController extends ApiController {
         return JsonResponse::success(null, 204);
     }
 
-    public function __construct(JsonConverter $jsonConverter, IIngredientRepository $ingredientRepository)
-    {
+    public function __construct(JsonConverter $jsonConverter, IIngredientRepository $ingredientRepository) {
         parent::__construct($jsonConverter);
  
         $this->ingredientRepository = $ingredientRepository;

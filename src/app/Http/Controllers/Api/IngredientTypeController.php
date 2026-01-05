@@ -42,8 +42,7 @@ class IngredientTypeController extends ApiController {
      * POST : api/ingredienttypes
      * Store a newly created ingredient in the database.
      */
-    public function add(IngredientTypeRequest $request)
-    {
+    public function add(IngredientTypeRequest $request) {
         $request->validate();
 
         $item = $this->ingredientTypeRepository->create($request->all());
@@ -55,8 +54,7 @@ class IngredientTypeController extends ApiController {
      * PUT : api/ingredienttypes/{id}
      * Update the specified ingredient type in the database.
      */
-    public function update(IngredientTypeRequest $request, $id)
-    {
+    public function update(IngredientTypeRequest $request, $id) {
         $request->validate();
 
         $item = $this->ingredientTypeRepository->getById([$id]);
@@ -74,8 +72,7 @@ class IngredientTypeController extends ApiController {
      * DELETE : api/ingredienttypes/{id}
      * Remove the specified ingredient type from the database.
      */
-    public function delete($id)
-    {
+    public function delete($id) {
         $item = $this->ingredientTypeRepository->getById([$id]);
 
         if (!$item) {

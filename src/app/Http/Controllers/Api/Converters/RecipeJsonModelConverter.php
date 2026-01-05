@@ -8,8 +8,7 @@ class RecipeJsonModelConverter extends JsonModelConverter
     private UnitJsonModelConverter $unitConverter;
     private IngredientJsonModelConverter $ingredientConverter;
 
-    public  function convert($model, int $options = JsonModelConverterOptions::None)
-    {
+    public  function convert($model, int $options = JsonModelConverterOptions::None) {
         $result = [
             'id' => $model->id,
             'name' => $model->name,
@@ -20,8 +19,7 @@ class RecipeJsonModelConverter extends JsonModelConverter
             'type' => $this->recipeTypeConverter->convert($model->type, $options),
         ];
 
-        if (JsonModelConverterOptions::hasOption($options, JsonModelConverterOptions::Ingredients))
-        {
+        if (JsonModelConverterOptions::hasOption($options, JsonModelConverterOptions::Ingredients)) {
             $result['ingredients'] = [];
 
             foreach ($model->ingredientRecipes as $ingredientRecipe) {

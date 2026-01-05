@@ -6,21 +6,19 @@ class MenuJsonModelConverter extends JsonModelConverter
 {
     private RecipeJsonModelConverter $recipeConverter;
 
-    public function convert($model, int $options = JsonModelConverterOptions::None)
-    {
+    public function convert($model, int $options = JsonModelConverterOptions::None) {
         $result = [
             'id' => $model->id,
             'name' => $model->name,
             'tags' => $model->tags,
         ];
 
-        if (JsonModelConverterOptions::hasOption($options, JsonModelConverterOptions::Recipes)) 
-        {
+        if (JsonModelConverterOptions::hasOption($options, JsonModelConverterOptions::Recipes)) {
             $result['recipes'] = [];
 
-            foreach ($model->recipeMenus as $recipeMenu) {
-                $convertedRecipe = $this->recipeConverter->convert($recipeMenu->recipe, $options);
-                $convertedRecipe['position'] = $recipeMenu->position;
+            foreach ($model->menuRecipes as $menuRecipe) {
+                $convertedRecipe = $this->recipeConverter->convert($menuRecipe->recipe, $options);
+                $convertedRecipe['position'] = $menuRecipe->position;
 
                 $result['recipes'][] = $convertedRecipe;
             }
@@ -29,8 +27,7 @@ class MenuJsonModelConverter extends JsonModelConverter
         return $result;        
     }
 
-    public function __construct(RecipeJsonModelConverter $recipeConverter)
-    {
+    public function __construct(RecipeJsonModelConverter $recipeConverter) {
         $this->recipeConverter = $recipeConverter;
     }
 }

@@ -6,8 +6,7 @@ class IngredientJsonModelConverter extends JsonModelConverter
 {
     private IngredientTypeJsonModelConverter $ingredientTypeConverter;
 
-    public function convert($model, int $options = JsonModelConverterOptions::None)
-    {
+    public function convert($model, int $options = JsonModelConverterOptions::None) {
         return [
             'id' => $model->id,
             'name' => $model->name,
@@ -15,8 +14,7 @@ class IngredientJsonModelConverter extends JsonModelConverter
         ];
     }
 
-    public function __construct(IngredientTypeJsonModelConverter $ingredientTypeConverter)
-    {
+    public function __construct(IngredientTypeJsonModelConverter $ingredientTypeConverter) {
         $this->ingredientTypeConverter = $ingredientTypeConverter;
     }
 }

@@ -8,14 +8,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\AuthenticationRequest;
 use App\Models\User;
 
-class AuthenticationController extends ApiController
-{
+class AuthenticationController extends ApiController {
     /**
      * POST : api/authentication/login
      * Authenticate a user and return a token.
      */
-    public function login(AuthenticationRequest $request)
-    {
+    public function login(AuthenticationRequest $request) {
         $credentials = $request->validated();
 
         if (Auth::attempt($credentials)) {
@@ -33,8 +31,7 @@ class AuthenticationController extends ApiController
      * POST : api/authentication/logout
      * Logout the authenticated user.
      */
-    public function logout()
-    {
+    public function logout() {
         Auth::logout();
 
         return JsonResponse::success(null, 200);

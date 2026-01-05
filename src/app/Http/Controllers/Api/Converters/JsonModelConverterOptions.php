@@ -8,8 +8,7 @@ class JsonModelConverterOptions
     const Ingredients = 1;
     const Recipes = 2;
 
-    public static function hasOption($options, $optionToCheck): bool
-    {
+    public static function hasOption($options, $optionToCheck): bool {
         return ($options & $optionToCheck) === $optionToCheck;
     }
 }
