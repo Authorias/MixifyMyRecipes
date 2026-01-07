@@ -97,7 +97,6 @@ class AppServiceProvider extends ServiceProvider {
     }
 
     private function registerJsonConverters() : void {
-        // Register converters as singletons for efficiency
         $this->app->singleton(IngredientTypeJsonModelConverter::class);
         $this->app->singleton(RecipeTypeJsonModelConverter::class);
         $this->app->singleton(UnitJsonModelConverter::class);

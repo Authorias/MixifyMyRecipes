@@ -37,19 +37,19 @@ Route::get('authenticate', [LoginController::class, 'authenticate'])
     ->name('authenticate');
 
 Route::resource('ingredients', IngredientController::class)
-    ->middleware('throttle:global')
+    ->middleware(['auth', 'throttle:global'])
     ->names('ingredients');
 
 Route::resource('ingredienttypes', IngredientTypeController::class)
-    ->middleware('throttle:global')
+    ->middleware(['auth', 'throttle:global'])
     ->names('ingredienttypes');
 
 Route::resource('recipes', RecipeController::class)
-    ->middleware('throttle:global')
+    ->middleware(['auth', 'throttle:global'])
     ->names('recipes');
 
 Route::resource('menus', MenuController::class)
-    ->middleware('throttle:global')
+    ->middleware(['auth', 'throttle:global'])
     ->names('menus');
 
 // API Routes
@@ -59,25 +59,25 @@ createApiCrudRoutes('recipetypes', ApiRecipeTypeController::class);
 createApiCrudRoutes('units', ApiUnitController::class);
 
 createApiCrudRoutes('menus', ApiMenuController::class);
-Route::post('api/menus/recipes', [ApiMenuController::class, 'addRecipe'])
-    ->middleware('throttle:api')
+Route::post('api/menus/recipes/{menuid}', [ApiMenuController::class, 'addRecipe'])
+    ->middleware(['auth', 'throttle:api'])
     ->name('api.menus.recipes.add');
-Route::put('api/menus/recipes/{id}', [ApiMenuController::class, 'updateRecipe'])
-    ->middleware('throttle:api')
+Route::put('api/menus/recipes/{menuid}', [ApiMenuController::class, 'updateRecipe'])
+    ->middleware(['auth', 'throttle:api'])
     ->name('api.menus.recipes.update');
 Route::delete('api/menus/recipes/{menuid}/{recipeid}', [ApiMenuController::class, 'deleteRecipe'])
-    ->middleware('throttle:api')
+    ->middleware(['auth', 'throttle:api'])
     ->name('api.menus.recipes.delete');
 
 createApiCrudRoutes('recipes', ApiRecipeController::class);
 Route::post('api/recipes/ingredients/{recipeid}', [ApiRecipeController::class, 'addIngredient'])
-    ->middleware('throttle:api')
+    ->middleware(['auth', 'throttle:api'])
     ->name('api.recipes.ingredients.add');
 Route::put('api/recipes/ingredients/{recipeid}', [ApiRecipeController::class, 'updateIngredient'])
-    ->middleware('throttle:api')
+    ->middleware(['auth', 'throttle:api'])
     ->name('api.recipes.ingredients.update');
 Route::delete('api/recipes/ingredients/{recipeid}/{ingredientid}', [ApiRecipeController::class, 'deleteIngredient'])
-    ->middleware('throttle:api')
+    ->middleware(['auth', 'throttle:api'])
     ->name('api.recipes.ingredients.delete');
 
 
@@ -85,5 +85,5 @@ Route::post('api/authentication/login', [ApiAuthenticationController::class, 'lo
     ->middleware('throttle:login')
     ->name('api.authentication.login');
 Route::post('api/authentication/logout', [ApiAuthenticationController::class, 'logout'])
-    ->middleware('throttle:api')
+    ->middleware(['auth', 'throttle:api'])
     ->name('api.authentication.logout');
