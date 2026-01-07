@@ -38,7 +38,7 @@ class RecipeController extends ApiController {
     public function get($id) {
         $item = $this->recipeRepository->getById([$id]);
 
-        if (!$item) {
+        if (is_null($item)) {
             return JsonResponse::error(ApiError::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
         
@@ -68,7 +68,7 @@ class RecipeController extends ApiController {
 
         $item = $this->recipeRepository->update([$id], $request->all());
 
-        return $item === null
+        return is_null($item)
             ? JsonResponse::error(ApiError::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
@@ -88,7 +88,7 @@ class RecipeController extends ApiController {
 
         $recipe = $this->recipeRepository->getById([$recipeid]);
 
-        if (!$recipe) {
+        if (is_null($recipe)) {
             return JsonResponse::error(ApiError::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 

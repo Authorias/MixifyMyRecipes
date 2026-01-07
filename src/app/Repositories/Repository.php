@@ -31,7 +31,7 @@ abstract class Repository implements IRepository
     public function update(array $primaryKeys, $data) : ?object {
         $item = $this->getById($primaryKeys);
 
-        if ($item != null) {
+        if (!is_null($item)) {
             $item->update($data);
         }
 
@@ -52,7 +52,7 @@ abstract class Repository implements IRepository
     }
 
     private function deleteByObject(object $item) : bool {
-        return $item === null
+        return is_null($item) 
             ? false
             : $item->delete() > 0;
     }
@@ -62,6 +62,8 @@ abstract class Repository implements IRepository
     }
 
     public function __construct(string $modelName = '') {
-        $this->modelName = $modelName ?? '';
+        $this->modelName = is_null($modelName) || $modelName === '' 
+            ? throw new \InvalidArgumentException('Model name cannot be null or empty.')
+            : $modelName;
     }
 }

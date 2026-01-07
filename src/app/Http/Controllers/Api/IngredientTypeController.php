@@ -35,7 +35,7 @@ class IngredientTypeController extends ApiController {
     public function get($id) {
         $item = $this->ingredientTypeRepository->getById([$id]);
 
-        return !$item
+        return is_null($item)
             ? JsonResponse::error(ApiError::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
@@ -61,7 +61,7 @@ class IngredientTypeController extends ApiController {
 
         $item = $this->ingredientTypeRepository->update([$id], $request->all());
 
-        return $item === null
+        return is_null($item)
             ? JsonResponse::error(ApiError::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
@@ -73,7 +73,7 @@ class IngredientTypeController extends ApiController {
     public function delete($id) {
         $item = $this->ingredientTypeRepository->getById([$id]);
 
-        if (!$item) {
+        if (is_null($item)) {
             return JsonResponse::error(ApiError::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 

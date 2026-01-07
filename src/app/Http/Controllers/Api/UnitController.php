@@ -36,7 +36,7 @@ class UnitController extends ApiController {
     public function get($id) {
         $item = $this->unitRepository->getById([$id]);
 
-        return !$item
+        return is_null($item)
             ? JsonResponse::error(ApiError::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
@@ -63,7 +63,7 @@ class UnitController extends ApiController {
 
         $item = $this->unitRepository->update([$id], $request->all());
 
-        return $item === null
+        return is_null($item)
             ? JsonResponse::error(ApiError::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
@@ -75,7 +75,7 @@ class UnitController extends ApiController {
     public function delete($id) {
         $item = $this->unitRepository->getById([$id]);
 
-        if (!$item) {
+        if (is_null($item)) {
             return JsonResponse::error(ApiError::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 

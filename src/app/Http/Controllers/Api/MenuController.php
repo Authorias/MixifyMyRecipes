@@ -38,7 +38,7 @@ class MenuController extends ApiController {
     public function get($id) {
         $item = $this->menuRepository->getById([$id]);
 
-        if (!$item) {
+        if (is_null($item)) {
             return JsonResponse::error(ApiError::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
         
@@ -68,7 +68,7 @@ class MenuController extends ApiController {
 
         $item = $this->menuRepository->update([$id], $request->all());
 
-        return $item === null
+        return is_null($item)
             ? JsonResponse::error(ApiError::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
@@ -88,7 +88,7 @@ class MenuController extends ApiController {
 
         $menu = $this->menuRepository->getById([$menuid]);
 
-        if ($menu === null) {
+        if (is_null($menu)) {
             return JsonResponse::error(ApiError::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 

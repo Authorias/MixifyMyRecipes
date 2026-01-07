@@ -35,7 +35,7 @@ class RecipeTypeController extends ApiController {
     public function get($id) {
         $item = $this->recipeTypeRepository->getById([$id]);
 
-        return !$item
+        return is_null($item)
             ? JsonResponse::error(ApiError::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
@@ -62,7 +62,7 @@ class RecipeTypeController extends ApiController {
 
         $item = $this->recipeTypeRepository->update([$id], $request->all());
 
-        return $item === null
+        return is_null($item)
             ? JsonResponse::error(ApiError::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
@@ -74,7 +74,7 @@ class RecipeTypeController extends ApiController {
     public function delete($id) {
         $item = $this->recipeTypeRepository->getById([$id]);
 
-        if (!$item) {
+        if (is_null($item)) {
             return JsonResponse::error(ApiError::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 

@@ -12,7 +12,6 @@ use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\JsonResponse;
 
 class IngredientController extends ApiController {
-
     private IIngredientRepository $ingredientRepository;
 
     /**
@@ -36,7 +35,7 @@ class IngredientController extends ApiController {
     public function get($id) {
         $item = $this->ingredientRepository->getById([$id]);
 
-        return $item === null
+        return is_null($item)
             ? JsonResponse::error(ApiError::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
@@ -63,7 +62,7 @@ class IngredientController extends ApiController {
 
         $item = $this->ingredientRepository->update([$id], $request->all());
 
-        return $item === null
+        return is_null($item)
             ? JsonResponse::error(ApiError::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
