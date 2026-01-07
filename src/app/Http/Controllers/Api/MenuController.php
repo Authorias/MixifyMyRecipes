@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\MenuRecipe;
-
+use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Api\Converters\MenuJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\MenuRequest;
@@ -12,7 +11,8 @@ use App\Repositories\IMenuRepository;
 use App\Repositories\IMenuRecipeRepository;
 
 class MenuController extends ApiController {
-    const MENU_NOT_FOUND_MESSAGE = 'Menu niet gevonden.';
+    const MENU_NOT_FOUND_MESSAGE = 'Menu not found.';
+    const MENU_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete menu.';
 
     private IMenuRepository $menuRepository;
     private IMenuRecipeRepository $menuRecipeRepository;
@@ -25,7 +25,7 @@ class MenuController extends ApiController {
         $items = [];
 
         foreach ($this->menuRepository->getAll() as $menu) {
-            $items[] = $this->jsonConverter->convert($menu, JsonOptions::None);
+            $items[] = $this->getConverter()->convert($menu, JsonOptions::None);
         }
 
         return JsonResponse::success($items);
@@ -39,12 +39,12 @@ class MenuController extends ApiController {
         $item = $this->menuRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
+            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
         
-        $result = $this->jsonConverter->convert($item, JsonOptions::Recipes + JsonOptions::Ingredients);
+        $result = $this->getConverter()->convert($item, JsonOptions::Recipes + JsonOptions::Ingredients);
 
-        return JsonResponse::success($result, 200);
+        return JsonResponse::success($result, Response::HTTP_OK);
     }
 
     /**
@@ -56,7 +56,7 @@ class MenuController extends ApiController {
 
         $item = $this->menuRepository->create($request->all());
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -66,15 +66,11 @@ class MenuController extends ApiController {
     public function update(MenuRequest $request, $id) {
         $request->validate();
 
-        $item = $this->menuRepository->getById([$id]);
+        $item = $this->menuRepository->update([$id], $request->all());
 
-        if (!$item) {
-            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->update($request->all());
-        
-        return JsonResponse::success($item, 200);
+        return $item === null
+            ? JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -82,27 +78,9 @@ class MenuController extends ApiController {
      * Remove the specified menu from the database.
      */
     public function delete($id) {
-        $item = $this->menuRepository->getById([$id]);
-
-        if (!$item) {
-            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->delete();
-
-        return JsonResponse::success(null, 204);
-    }
-
-    public function getRecipes(string $menuid) {
-        $menu = $this->menuRepository->getById([$menuid]);
-
-        if ($menu === null) {
-            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item = MenuRecipe::where('menuid', $menuid)->orderBy('position')->get();
-        
-        return JsonResponse::success($item, 200);
+        return $this->menuRepository->delete([$id])
+            ? JsonResponse::success(null, Response::HTTP_OK)
+            : JsonResponse::error(self::MENU_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function addRecipe(MenuRecipeRequest $request, $menuid) {
@@ -111,15 +89,15 @@ class MenuController extends ApiController {
         $menu = $this->menuRepository->getById([$menuid]);
 
         if ($menu === null) {
-            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, 404);
+            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         $data = $request->all();
         $data['menuid'] = $menuid;
 
-        $item = MenuRecipe::create($data);
+        $item = $this->menuRecipeRepository->create($data);
         
-        return JsonResponse::success($item, 200);
+        return JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -129,55 +107,25 @@ class MenuController extends ApiController {
      * @param  string  $id  The recipe ID
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updateRecipe(MenuRecipeRequest $request, $id) {
+    public function updateRecipe(MenuRecipeRequest $request, $menuid) {
         $request->validate();
 
-        $item = MenuRecipe::where('menuid', $id)
-            ->where('recipeid', $request->input('recipeid'))
-            ->first();
+        $data = $request->all();
+        $data['menuid'] = $menuid;
 
-        if (!$item) {
-            return JsonResponse::error('Recipe niet gevonden in menu.', 404);
-        }
-
-        $item->update($request->all());
+        $item = $this->menuRecipeRepository->update(
+            [$menuid, $request->input('recipeid')],
+            $data
+        );
         
         return JsonResponse::success($item, 200);
     }
 
     public function deleteRecipe(string $menuid, string $recipeid) {
-        $item = MenuRecipe::where('menuid', $menuid)
-            ->where('recipeid', $recipeid)
-            ->first();
-
-        if ($item) {
-            $item->delete();
-        }
-        
-        return JsonResponse::success(null, 204);
+        return $this->menuRecipeRepository->delete([$menuid, $recipeid])
+            ? JsonResponse::success(null, Response::HTTP_OK)
+            : JsonResponse::error('Unable to delete recipe.', Response::HTTP_INTERNAL_SERVER_ERROR);
     }
-
-    private function loadRecipes($menuid)
-    {
-         $result = [];
-
-        foreach (MenuRecipe::where('menuid', $menuid)->get() as $item)
-        {
-            $result[] = [
-                'id' => $item->recipeid, 
-                'name' => $item->recipe->name,
-                'tags' => $item->recipe->tags,
-                'position' => $item->position,
-                'numberofpeople' => $item->recipe->numberofpeople,
-                'type' => [
-                    'id' => $item->recipe->typeid, 
-                    'name' => $item->recipe->type->name
-                ]
-            ];
-        }
-        
-        return $result;
-   }
 
     public function __construct(JsonConverter $jsonConverter, IMenuRepository $menuRepository, IMenuRecipeRepository $menuRecipeRepository) {
         parent::__construct($jsonConverter);

@@ -59,9 +59,6 @@ createApiCrudRoutes('recipetypes', ApiRecipeTypeController::class);
 createApiCrudRoutes('units', ApiUnitController::class);
 
 createApiCrudRoutes('menus', ApiMenuController::class);
-Route::get('api/menus/recipes/{menuid}', [ApiMenuController::class, 'getRecipes'])
-    ->middleware('throttle:api')
-    ->name('api.menus.recipes.get');
 Route::post('api/menus/recipes', [ApiMenuController::class, 'addRecipe'])
     ->middleware('throttle:api')
     ->name('api.menus.recipes.add');
@@ -73,9 +70,6 @@ Route::delete('api/menus/recipes/{menuid}/{recipeid}', [ApiMenuController::class
     ->name('api.menus.recipes.delete');
 
 createApiCrudRoutes('recipes', ApiRecipeController::class);
-Route::get('api/recipes/ingredients/{recipeid}', [ApiRecipeController::class, 'getIngredients'])
-    ->middleware('throttle:api')
-    ->name('api.recipes.ingredients.get');
 Route::post('api/recipes/ingredients/{recipeid}', [ApiRecipeController::class, 'addIngredient'])
     ->middleware('throttle:api')
     ->name('api.recipes.ingredients.add');

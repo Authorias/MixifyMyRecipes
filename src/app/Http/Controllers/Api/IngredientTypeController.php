@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Api\Converters\IngredientTypeJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\IngredientTypeRequest;
 use App\Repositories\IIngredientTypeRepository;
 
 class IngredientTypeController extends ApiController {
-    const INGREDIENT_TYPE_NOT_FOUND_MESSAGE = 'Ingredient type niet gevonden.';
+    const INGREDIENT_TYPE_NOT_FOUND_MESSAGE = 'Ingredient type not found.';
+    const INGREDIENT_TYPE_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete ingredient type.';
 
     private IIngredientTypeRepository $ingredientTypeRepository;
 
@@ -20,7 +22,7 @@ class IngredientTypeController extends ApiController {
         $items = [];
 
         foreach ($this->ingredientTypeRepository->getAll() as $ingredientType) {
-            $items[] = $this->jsonConverter->convert($ingredientType, JsonOptions::None);
+            $items[] = $this->getConverter()->convert($ingredientType, JsonOptions::None);
         }
 
         return JsonResponse::success($items);
@@ -34,8 +36,8 @@ class IngredientTypeController extends ApiController {
         $item = $this->ingredientTypeRepository->getById([$id]);
 
         return !$item
-            ? JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, 404)
-            : JsonResponse::success($this->jsonConverter->convert($item, JsonOptions::None), 200);
+            ? JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
 
     /**
@@ -57,15 +59,11 @@ class IngredientTypeController extends ApiController {
     public function update(IngredientTypeRequest $request, $id) {
         $request->validate();
 
-        $item = $this->ingredientTypeRepository->getById([$id]);
+        $item = $this->ingredientTypeRepository->update([$id], $request->all());
 
-        if (!$item) {
-            return JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->update($request->all());
-
-        return JsonResponse::success($item, 200);
+        return $item === null
+            ? JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -76,16 +74,16 @@ class IngredientTypeController extends ApiController {
         $item = $this->ingredientTypeRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, 404);
+            return JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         if ($item->ingredients()->count() > 0) {
-            return JsonResponse::error('Kan dit ingredient type niet verwijderen omdat er nog ingredienten aan gekoppeld zijn.', 400);
+            return JsonResponse::error('Unable to delete ingredient type because it is still linked to ingredients.', Response::HTTP_BAD_REQUEST);
         }
 
-        $item->delete();
-
-        return JsonResponse::success(null, 204);
+        return $this->ingredientTypeRepository->delete($item)
+            ? JsonResponse::success(null, Response::HTTP_OK)
+            : JsonResponse::error(self::INGREDIENT_TYPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IIngredientTypeRepository $ingredientTypeRepository) {

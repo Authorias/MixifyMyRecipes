@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Api\Converters\UnitJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\UnitRequest;
 use App\Repositories\IUnitRepository;
 
 class UnitController extends ApiController {
-    const UNIT_NOT_FOUND_MESSAGE = 'Unit niet gevonden.';
+    const UNIT_NOT_FOUND_MESSAGE = 'Unit not found.';
+    const UNIT_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete unit.';
 
     private IUnitRepository $unitRepository;
 
@@ -21,7 +23,7 @@ class UnitController extends ApiController {
         $items = [];
 
         foreach ($this->unitRepository->getAll() as $unit) {
-            $items[] = $this->jsonConverter->convert($unit, JsonOptions::None);
+            $items[] = $this->getConverter()->convert($unit, JsonOptions::None);
         }
 
         return JsonResponse::success($items);
@@ -35,8 +37,8 @@ class UnitController extends ApiController {
         $item = $this->unitRepository->getById([$id]);
 
         return !$item
-            ? JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, 404)
-            : JsonResponse::success($this->jsonConverter->convert($item, JsonOptions::None), 200);
+            ? JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
 
 
@@ -49,7 +51,7 @@ class UnitController extends ApiController {
 
         $item = $this->unitRepository->create($request->all());
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -59,15 +61,11 @@ class UnitController extends ApiController {
     public function update(UnitRequest $request, $id) {
         $request->validate();
 
-        $item = $this->unitRepository->getById([$id]);
+        $item = $this->unitRepository->update([$id], $request->all());
 
-        if (!$item) {
-            return JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->update($request->all());
-        
-        return JsonResponse::success($item, 200);
+        return $item === null
+            ? JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -78,16 +76,16 @@ class UnitController extends ApiController {
         $item = $this->unitRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, 404);
+            return JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         if ($item->ingredientRecipes()->count() > 0) {
-            return JsonResponse::error('Kan deze eenheid niet verwijderen omdat er nog ingredienten in recepten aan gekoppeld zijn.', 400);
+            return JsonResponse::error('Unable to delete unit because it is still linked to ingredients in recipes.', Response::HTTP_BAD_REQUEST);
         }
 
-        $item->delete();
-
-        return JsonResponse::success(null, 204);
+        return $this->unitRepository->delete([$id])
+            ? JsonResponse::success(null, Response::HTTP_OK)
+            : JsonResponse::error(self::UNIT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IUnitRepository $unitRepository) {

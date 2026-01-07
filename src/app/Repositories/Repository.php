@@ -20,12 +20,10 @@ abstract class Repository implements IRepository
         return $this->getModelName()::where('id', $this->getValueFromPrimaryKeys($primaryKeys))->first();
     }
 
-    public function delete(array $primaryKeys) : bool {
-        $item = $this->getById($primaryKeys);
-
-        return $item === null
-            ? false
-            : $item->delete() > 0;
+    public function delete($item) : bool {
+        return is_array($item)
+            ? $this->deleteByPrimaryKeys($item)
+            : $this->deleteByObject($item);
     }
 
     public function update(array $primaryKeys, $data) : ?object {
@@ -49,6 +47,16 @@ abstract class Repository implements IRepository
         return $index < 0 || $index >= $count
             ? throw new \InvalidArgumentException("Index $index is out of bounds for primary keys array of size $count.")
             : $keys[$index];
+    }
+
+    private function deleteByObject(object $item) : bool {
+        return $item === null
+            ? false
+            : $item->delete() > 0;
+    }
+
+    private function deleteByPrimaryKeys(array $primaryKeys) : bool {
+        return $this->deleteByObject($this->getById($primaryKeys));
     }
 
     public function __construct(string $modelName = '') {

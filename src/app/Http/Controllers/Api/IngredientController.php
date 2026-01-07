@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\Converters\IngredientJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
@@ -9,7 +10,8 @@ use App\Http\Requests\IngredientRequest;
 use App\Repositories\IIngredientRepository;
 
 class IngredientController extends ApiController {
-    const INGREDIENT_NOT_FOUND_MESSAGE = 'Ingredient niet gevonden.';
+    const INGREDIENT_NOT_FOUND_MESSAGE = 'Ingredient not found.';
+    const INGREDIENT_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete ingredient.';
 
     private IIngredientRepository $ingredientRepository;
 
@@ -21,7 +23,7 @@ class IngredientController extends ApiController {
         $items = [];
 
         foreach ($this->ingredientRepository->getAll() as $ingredient) {
-            $items[] = $this->jsonConverter->convert($ingredient, JsonOptions::None);
+            $items[] = $this->getConverter()->convert($ingredient, JsonOptions::None);
         }
 
         return JsonResponse::success($items);
@@ -35,8 +37,8 @@ class IngredientController extends ApiController {
         $item = $this->ingredientRepository->getById([$id]);
 
         return $item === null
-            ? JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, 404)
-            : JsonResponse::success($this->jsonConverter->convert($item, JsonOptions::None), 200);
+            ? JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
 
 
@@ -49,7 +51,7 @@ class IngredientController extends ApiController {
 
         $item = $this->ingredientRepository->create($request->all());
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -59,15 +61,11 @@ class IngredientController extends ApiController {
     public function update(IngredientRequest $request, $id) {
         $request->validate();
 
-        $item = $this->ingredientRepository->getById([$id]);
+        $item = $this->ingredientRepository->update([$id], $request->all());
 
-        if ($item === null) {
-            return JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->update($request->all());
-        
-        return JsonResponse::success($item, 200);
+        return $item === null
+            ? JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -75,15 +73,9 @@ class IngredientController extends ApiController {
      * Remove the specified ingredient from the database.
      */
     public function delete($id) {
-        $item = $this->ingredientRepository->getById([$id]);
-
-        if ($item === null) {
-            return JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->delete();
-
-        return JsonResponse::success(null, 204);
+        return $this->ingredientRepository->delete([$id])
+            ? JsonResponse::success(null, Response::HTTP_OK)
+            : JsonResponse::error(self::INGREDIENT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IIngredientRepository $ingredientRepository) {

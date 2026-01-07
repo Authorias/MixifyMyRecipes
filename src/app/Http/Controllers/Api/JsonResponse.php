@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use Symfony\Component\HttpFoundation\Response;
+
 class JsonResponse
 {
-    public static function success($data, $statusCode = 200) {
+    public static function success($data, $statusCode = Response::HTTP_OK) {
         return $data !== null && self::isArrayOrCollection($data)
             ? response()->json(
                 [

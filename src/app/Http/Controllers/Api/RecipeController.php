@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\RecipeIngredient;
-
+use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Api\Converters\RecipeJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\RecipeRequest;
@@ -12,7 +11,8 @@ use App\Repositories\IRecipeRepository;
 use App\Repositories\IRecipeIngredientRepository;
 
 class RecipeController extends ApiController {
-    const RECIPE_NOT_FOUND_MESSAGE = 'Recept niet gevonden.';
+    const RECIPE_NOT_FOUND_MESSAGE = 'Recipe not found.';
+    const RECIPE_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete recipe.';
 
     private IRecipeRepository $recipeRepository;
     private IRecipeIngredientRepository $recipeIngredientRepository;
@@ -25,7 +25,7 @@ class RecipeController extends ApiController {
         $items = [];
 
         foreach ($this->recipeRepository->getAll() as $recipe) {
-            $items[] = $this->jsonConverter->convert($recipe, JsonOptions::None);
+            $items[] = $this->getConverter()->convert($recipe, JsonOptions::None);
         }
 
         return JsonResponse::success($items);
@@ -39,12 +39,12 @@ class RecipeController extends ApiController {
         $item = $this->recipeRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
+            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
         
-        $result = $this->jsonConverter->convert($item, JsonOptions::Ingredients);
+        $result = $this->getConverter()->convert($item, JsonOptions::Ingredients);
 
-        return JsonResponse::success($result, 200);
+        return JsonResponse::success($result, Response::HTTP_OK);
     }
 
     /**
@@ -56,7 +56,7 @@ class RecipeController extends ApiController {
 
         $item = $this->recipeRepository->create($request->all());
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, Response::HTTP_CREATED);
     }
 
     /**
@@ -66,15 +66,11 @@ class RecipeController extends ApiController {
     public function update(RecipeRequest $request, $id) {
         $request->validate();
 
-        $item = $this->recipeRepository->getById([$id]);
+        $item = $this->recipeRepository->update([$id], $request->all());
 
-        if (!$item) {
-            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->update($request->all());
-        
-        return JsonResponse::success($item, 200);
+        return $item === null
+            ? JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -82,28 +78,9 @@ class RecipeController extends ApiController {
      * Remove the specified recipe from the database.
      */
     public function delete($id) {
-        $item = $this->recipeRepository->getById([$id]);
-
-        if (!$item) {
-            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->delete();
-
-        return JsonResponse::success(null, 204);
-    }
-
-    public function getIngredients(string $recipeid) {
-
-        $recipe = $this->recipeRepository->getById([$recipeid]);
-
-        if (!$recipe) {
-            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $ingredients = $this->loadIngredients($recipeid);
-        
-        return JsonResponse::success($ingredients, 200);
+        return $this->recipeRepository->delete([$id])
+            ? JsonResponse::success(null, Response::HTTP_OK)
+            : JsonResponse::error(self::RECIPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function addIngredient(RecipeIngredientRequest $request, string $recipeid) {
@@ -112,66 +89,36 @@ class RecipeController extends ApiController {
         $recipe = $this->recipeRepository->getById([$recipeid]);
 
         if (!$recipe) {
-            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
+            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         $data = $request->all();
         $data['recipeid'] = $recipeid;
 
-        $item = RecipeIngredient::create($data);
+        $item =  $this->recipeIngredientRepository->create($data);
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, Response::HTTP_OK);
     }
 
     public function updateIngredient(RecipeIngredientRequest $request, string $recipeid) {
         $request->validate();
 
-        $recipe = $this->recipeRepository->getById([$recipeid]);
-        
-        if (!$recipe) {
-            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, 404);
-        }
-
         $data = $request->all();
         $data['recipeid'] = $recipeid;
 
-        $item = RecipeIngredient::update($data);
+        $item = $this->recipeIngredientRepository->update(
+            [$recipeid, $request->input('ingredientid')],
+            $data
+        );
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, Response::HTTP_OK);
     }
 
     public function deleteIngredient(string $recipeid, string $ingredientid) {
-        $item = RecipeIngredient::where('recipeid', $recipeid)
-            ->where('ingredientid', $ingredientid)
-            ->first();
-
-        if ($item) 
-        {
-            $item->delete();
-        }
-        
-        return JsonResponse::success(null, 204);
+        return $this->recipeIngredientRepository->delete([$recipeid, $ingredientid])
+            ? JsonResponse::success(null, Response::HTTP_OK)
+            : JsonResponse::error('Unable to delete ingredient.', Response::HTTP_INTERNAL_SERVER_ERROR);
     }
-
-    private function loadIngredients(string $recipeid) {
-         $result = [];
-
-        foreach (RecipeIngredient::where('recipeid', $recipeid)->get() as $item)
-        {
-            $result[] = [
-                'id' => $item->ingredientid, 
-                'name' => $item->ingredient->name,
-                'quantity' => $item->quantity, 
-                'unit' => [
-                    'id' => $item->unitid, 
-                    'name' => $item->unit->name, 
-                    'abbreviation' => $item->unit->abbreviation
-                ]
-            ];
-        }
-        
-        return $result;
-   }
 
     public function __construct(JsonConverter $jsonConverter, IRecipeRepository $recipeRepository, IRecipeIngredientRepository $recipeIngredientRepository) {
         parent::__construct($jsonConverter);

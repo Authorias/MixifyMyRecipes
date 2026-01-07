@@ -7,5 +7,5 @@ interface IWriteRepository {
     
     function update(array $primaryKeys, $data) : ?object;
     
-    function delete(array $primaryKeys) : bool;
+    function delete($item) : bool;
 }

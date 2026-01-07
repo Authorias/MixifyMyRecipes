@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Api\Converters\RecipeTypeJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\RecipeTypeRequest;
 use App\Repositories\IRecipeTypeRepository;
 
-
 class RecipeTypeController extends ApiController {
-    const RECIPE_TYPE_NOT_FOUND_MESSAGE = 'Recept type niet gevonden.';
+    const RECIPE_TYPE_NOT_FOUND_MESSAGE = 'Recipe type not found.';
+    const RECIPE_TYPE_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete recipe type.';
 
     private IRecipeTypeRepository $recipeTypeRepository;
 
@@ -21,7 +22,7 @@ class RecipeTypeController extends ApiController {
         $items = [];
 
         foreach ($this->recipeTypeRepository->getAll() as $recipeType) {
-            $items[] = $this->jsonConverter->convert($recipeType, JsonOptions::None);
+            $items[] = $this->getConverter()->convert($recipeType, JsonOptions::None);
         }
 
         return JsonResponse::success($items);
@@ -35,8 +36,8 @@ class RecipeTypeController extends ApiController {
         $item = $this->recipeTypeRepository->getById([$id]);
 
         return !$item
-            ? JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, 404)
-            : JsonResponse::success($this->jsonConverter->convert($item, JsonOptions::None), 200);
+            ? JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
 
 
@@ -49,7 +50,7 @@ class RecipeTypeController extends ApiController {
 
         $item = $this->recipeTypeRepository->create($request->all());
         
-        return JsonResponse::success($item, 201);
+        return JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -59,15 +60,11 @@ class RecipeTypeController extends ApiController {
     public function update(RecipeTypeRequest $request, $id) {
         $request->validate();
 
-        $item = $this->recipeTypeRepository->getById([$id]);
+        $item = $this->recipeTypeRepository->update([$id], $request->all());
 
-        if (!$item) {
-            return JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, 404);
-        }
-
-        $item->update($request->all());
-
-        return JsonResponse::success($item, 200);
+        return $item === null
+            ? JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            : JsonResponse::success($item, Response::HTTP_OK);
     }
 
     /**
@@ -78,16 +75,16 @@ class RecipeTypeController extends ApiController {
         $item = $this->recipeTypeRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, 404);
+            return JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         if ($item->recipes()->count() > 0) {
-            return JsonResponse::error('Kan dit recept type niet verwijderen omdat er nog recepten aan gekoppeld zijn.', 400);
+            return JsonResponse::error('Unable to delete recipe type because it is still linked to recipes.', Response::HTTP_BAD_REQUEST);
         }
 
-        $item->delete();
-
-        return JsonResponse::success(null, 204);
+        return $this->recipeTypeRepository->delete($item)
+            ? JsonResponse::success(null, Response::HTTP_OK)
+            : JsonResponse::error(self::RECIPE_TYPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IRecipeTypeRepository $recipeTypeRepository) {
