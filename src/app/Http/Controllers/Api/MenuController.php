@@ -11,6 +11,7 @@ use App\Repositories\IMenuRepository;
 use App\Repositories\IMenuRecipeRepository;
 use App\Http\Controllers\Api\ApiError;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\JsonResponse;
 
 class MenuController extends ApiController {
     private IMenuRepository $menuRepository;

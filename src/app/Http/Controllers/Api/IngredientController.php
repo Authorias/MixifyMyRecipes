@@ -9,6 +9,7 @@ use App\Http\Requests\IngredientRequest;
 use App\Repositories\IIngredientRepository;
 use App\Http\Controllers\Api\ApiError;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\JsonResponse;
 
 class IngredientController extends ApiController {
 

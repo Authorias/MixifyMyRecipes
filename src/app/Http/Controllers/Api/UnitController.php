@@ -9,6 +9,7 @@ use App\Http\Requests\UnitRequest;
 use App\Repositories\IUnitRepository;
 use App\Http\Controllers\Api\ApiError;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\JsonResponse;
 
 class UnitController extends ApiController {
     private IUnitRepository $unitRepository;

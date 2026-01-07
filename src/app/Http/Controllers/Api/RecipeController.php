@@ -11,6 +11,7 @@ use App\Repositories\IRecipeRepository;
 use App\Repositories\IRecipeIngredientRepository;
 use App\Http\Controllers\Api\ApiError;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\JsonResponse;
 
 class RecipeController extends ApiController {
     private IRecipeRepository $recipeRepository;

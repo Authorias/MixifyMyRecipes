@@ -9,6 +9,7 @@ use App\Http\Requests\RecipeTypeRequest;
 use App\Repositories\IRecipeTypeRepository;
 use App\Http\Controllers\Api\ApiError;
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Controllers\Api\JsonResponse;
 
 class RecipeTypeController extends ApiController {
     private IRecipeTypeRepository $recipeTypeRepository;
