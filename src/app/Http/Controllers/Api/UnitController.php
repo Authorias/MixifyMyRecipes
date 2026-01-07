@@ -7,11 +7,10 @@ use App\Http\Controllers\Api\Converters\UnitJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\UnitRequest;
 use App\Repositories\IUnitRepository;
+use App\Http\Controllers\Api\ApiError;
+use App\Http\Controllers\Api\ApiController;
 
 class UnitController extends ApiController {
-    const UNIT_NOT_FOUND_MESSAGE = 'Unit not found.';
-    const UNIT_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete unit.';
-
     private IUnitRepository $unitRepository;
 
     /**
@@ -37,7 +36,7 @@ class UnitController extends ApiController {
         $item = $this->unitRepository->getById([$id]);
 
         return !$item
-            ? JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
 
@@ -64,7 +63,7 @@ class UnitController extends ApiController {
         $item = $this->unitRepository->update([$id], $request->all());
 
         return $item === null
-            ? JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
 
@@ -76,7 +75,7 @@ class UnitController extends ApiController {
         $item = $this->unitRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
+            return JsonResponse::error(ApiError::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         if ($item->ingredientRecipes()->count() > 0) {
@@ -85,7 +84,7 @@ class UnitController extends ApiController {
 
         return $this->unitRepository->delete([$id])
             ? JsonResponse::success(null, Response::HTTP_OK)
-            : JsonResponse::error(self::UNIT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
+            : JsonResponse::error(ApiError::UNIT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IUnitRepository $unitRepository) {

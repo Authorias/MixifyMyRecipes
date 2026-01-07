@@ -7,11 +7,10 @@ use App\Http\Controllers\Api\Converters\IngredientTypeJsonModelConverter as Json
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\IngredientTypeRequest;
 use App\Repositories\IIngredientTypeRepository;
+use App\Http\Controllers\Api\ApiError;
+use App\Http\Controllers\Api\ApiController;
 
 class IngredientTypeController extends ApiController {
-    const INGREDIENT_TYPE_NOT_FOUND_MESSAGE = 'Ingredient type not found.';
-    const INGREDIENT_TYPE_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete ingredient type.';
-
     private IIngredientTypeRepository $ingredientTypeRepository;
 
     /**
@@ -36,7 +35,7 @@ class IngredientTypeController extends ApiController {
         $item = $this->ingredientTypeRepository->getById([$id]);
 
         return !$item
-            ? JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
 
@@ -62,7 +61,7 @@ class IngredientTypeController extends ApiController {
         $item = $this->ingredientTypeRepository->update([$id], $request->all());
 
         return $item === null
-            ? JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
 
@@ -74,7 +73,7 @@ class IngredientTypeController extends ApiController {
         $item = $this->ingredientTypeRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
+            return JsonResponse::error(ApiError::INGREDIENT_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         if ($item->ingredients()->count() > 0) {
@@ -83,7 +82,7 @@ class IngredientTypeController extends ApiController {
 
         return $this->ingredientTypeRepository->delete($item)
             ? JsonResponse::success(null, Response::HTTP_OK)
-            : JsonResponse::error(self::INGREDIENT_TYPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
+            : JsonResponse::error(ApiError::INGREDIENT_TYPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IIngredientTypeRepository $ingredientTypeRepository) {

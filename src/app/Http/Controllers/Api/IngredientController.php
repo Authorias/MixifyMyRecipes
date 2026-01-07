@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use Symfony\Component\HttpFoundation\Response;
-use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\Api\Converters\IngredientJsonModelConverter as JsonConverter;
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\IngredientRequest;
 use App\Repositories\IIngredientRepository;
+use App\Http\Controllers\Api\ApiError;
+use App\Http\Controllers\Api\ApiController;
 
 class IngredientController extends ApiController {
-    const INGREDIENT_NOT_FOUND_MESSAGE = 'Ingredient not found.';
-    const INGREDIENT_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete ingredient.';
 
     private IIngredientRepository $ingredientRepository;
 
@@ -37,7 +36,7 @@ class IngredientController extends ApiController {
         $item = $this->ingredientRepository->getById([$id]);
 
         return $item === null
-            ? JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
 
@@ -64,7 +63,7 @@ class IngredientController extends ApiController {
         $item = $this->ingredientRepository->update([$id], $request->all());
 
         return $item === null
-            ? JsonResponse::error(self::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
 
@@ -75,7 +74,7 @@ class IngredientController extends ApiController {
     public function delete($id) {
         return $this->ingredientRepository->delete([$id])
             ? JsonResponse::success(null, Response::HTTP_OK)
-            : JsonResponse::error(self::INGREDIENT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
+            : JsonResponse::error(ApiError::INGREDIENT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IIngredientRepository $ingredientRepository) {

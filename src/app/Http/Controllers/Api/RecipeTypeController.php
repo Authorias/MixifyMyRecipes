@@ -7,11 +7,10 @@ use App\Http\Controllers\Api\Converters\RecipeTypeJsonModelConverter as JsonConv
 use App\Http\Controllers\Api\Converters\JsonModelConverterOptions as JsonOptions;
 use App\Http\Requests\RecipeTypeRequest;
 use App\Repositories\IRecipeTypeRepository;
+use App\Http\Controllers\Api\ApiError;
+use App\Http\Controllers\Api\ApiController;
 
 class RecipeTypeController extends ApiController {
-    const RECIPE_TYPE_NOT_FOUND_MESSAGE = 'Recipe type not found.';
-    const RECIPE_TYPE_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete recipe type.';
-
     private IRecipeTypeRepository $recipeTypeRepository;
 
     /**
@@ -36,7 +35,7 @@ class RecipeTypeController extends ApiController {
         $item = $this->recipeTypeRepository->getById([$id]);
 
         return !$item
-            ? JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
     }
 
@@ -63,7 +62,7 @@ class RecipeTypeController extends ApiController {
         $item = $this->recipeTypeRepository->update([$id], $request->all());
 
         return $item === null
-            ? JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
 
@@ -75,7 +74,7 @@ class RecipeTypeController extends ApiController {
         $item = $this->recipeTypeRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
+            return JsonResponse::error(ApiError::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         if ($item->recipes()->count() > 0) {
@@ -84,7 +83,7 @@ class RecipeTypeController extends ApiController {
 
         return $this->recipeTypeRepository->delete($item)
             ? JsonResponse::success(null, Response::HTTP_OK)
-            : JsonResponse::error(self::RECIPE_TYPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
+            : JsonResponse::error(ApiError::RECIPE_TYPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IRecipeTypeRepository $recipeTypeRepository) {

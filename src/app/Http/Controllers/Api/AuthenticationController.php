@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 
 use App\Http\Requests\AuthenticationRequest;
 use App\Models\User;
+use App\Http\Controllers\Api\ApiController;
 
 class AuthenticationController extends ApiController {
     /**
@@ -21,10 +22,10 @@ class AuthenticationController extends ApiController {
             $user = Auth::user();
             $token = $user->createToken('authToken')->accessToken;
 
-            return JsonResponse::success($this->getConverter()->convert($token), 200);
+            return JsonResponse::success($this->getConverter()->convert($token), Response::HTTP_OK);
         }
 
-        return JsonResponse::error('Ongeldige gebruikersnaam of wachtwoord.', 401);
+        return JsonResponse::error('Ongeldige gebruikersnaam of wachtwoord.', Response::HTTP_UNAUTHORIZED);
     }
 
     /**
@@ -34,6 +35,6 @@ class AuthenticationController extends ApiController {
     public function logout() {
         Auth::logout();
 
-        return JsonResponse::success(null, 200);
+        return JsonResponse::success(null);
     }
 }

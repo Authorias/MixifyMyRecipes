@@ -9,11 +9,10 @@ use App\Http\Requests\MenuRequest;
 use App\Http\Requests\MenuRecipeRequest;
 use App\Repositories\IMenuRepository;
 use App\Repositories\IMenuRecipeRepository;
+use App\Http\Controllers\Api\ApiError;
+use App\Http\Controllers\Api\ApiController;
 
 class MenuController extends ApiController {
-    const MENU_NOT_FOUND_MESSAGE = 'Menu not found.';
-    const MENU_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete menu.';
-
     private IMenuRepository $menuRepository;
     private IMenuRecipeRepository $menuRecipeRepository;
 
@@ -39,7 +38,7 @@ class MenuController extends ApiController {
         $item = $this->menuRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
+            return JsonResponse::error(ApiError::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
         
         $result = $this->getConverter()->convert($item, JsonOptions::Recipes + JsonOptions::Ingredients);
@@ -69,7 +68,7 @@ class MenuController extends ApiController {
         $item = $this->menuRepository->update([$id], $request->all());
 
         return $item === null
-            ? JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
 
@@ -80,7 +79,7 @@ class MenuController extends ApiController {
     public function delete($id) {
         return $this->menuRepository->delete([$id])
             ? JsonResponse::success(null, Response::HTTP_OK)
-            : JsonResponse::error(self::MENU_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
+            : JsonResponse::error(ApiError::MENU_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function addRecipe(MenuRecipeRequest $request, $menuid) {
@@ -89,7 +88,7 @@ class MenuController extends ApiController {
         $menu = $this->menuRepository->getById([$menuid]);
 
         if ($menu === null) {
-            return JsonResponse::error(self::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
+            return JsonResponse::error(ApiError::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         $data = $request->all();
@@ -124,7 +123,7 @@ class MenuController extends ApiController {
     public function deleteRecipe(string $menuid, string $recipeid) {
         return $this->menuRecipeRepository->delete([$menuid, $recipeid])
             ? JsonResponse::success(null, Response::HTTP_OK)
-            : JsonResponse::error('Unable to delete recipe.', Response::HTTP_INTERNAL_SERVER_ERROR);
+            : JsonResponse::error(ApiError::RECIPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IMenuRepository $menuRepository, IMenuRecipeRepository $menuRecipeRepository) {

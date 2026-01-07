@@ -9,11 +9,10 @@ use App\Http\Requests\RecipeRequest;
 use App\Http\Requests\RecipeIngredientRequest;
 use App\Repositories\IRecipeRepository;
 use App\Repositories\IRecipeIngredientRepository;
+use App\Http\Controllers\Api\ApiError;
+use App\Http\Controllers\Api\ApiController;
 
 class RecipeController extends ApiController {
-    const RECIPE_NOT_FOUND_MESSAGE = 'Recipe not found.';
-    const RECIPE_UNABLE_TO_DELETE_MESSAGE = 'Unable to delete recipe.';
-
     private IRecipeRepository $recipeRepository;
     private IRecipeIngredientRepository $recipeIngredientRepository;
 
@@ -39,7 +38,7 @@ class RecipeController extends ApiController {
         $item = $this->recipeRepository->getById([$id]);
 
         if (!$item) {
-            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
+            return JsonResponse::error(ApiError::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
         
         $result = $this->getConverter()->convert($item, JsonOptions::Ingredients);
@@ -69,7 +68,7 @@ class RecipeController extends ApiController {
         $item = $this->recipeRepository->update([$id], $request->all());
 
         return $item === null
-            ? JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
+            ? JsonResponse::error(ApiError::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
             : JsonResponse::success($item, Response::HTTP_OK);
     }
 
@@ -80,7 +79,7 @@ class RecipeController extends ApiController {
     public function delete($id) {
         return $this->recipeRepository->delete([$id])
             ? JsonResponse::success(null, Response::HTTP_OK)
-            : JsonResponse::error(self::RECIPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
+            : JsonResponse::error(ApiError::RECIPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function addIngredient(RecipeIngredientRequest $request, string $recipeid) {
@@ -89,7 +88,7 @@ class RecipeController extends ApiController {
         $recipe = $this->recipeRepository->getById([$recipeid]);
 
         if (!$recipe) {
-            return JsonResponse::error(self::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
+            return JsonResponse::error(ApiError::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND);
         }
 
         $data = $request->all();
@@ -117,7 +116,7 @@ class RecipeController extends ApiController {
     public function deleteIngredient(string $recipeid, string $ingredientid) {
         return $this->recipeIngredientRepository->delete([$recipeid, $ingredientid])
             ? JsonResponse::success(null, Response::HTTP_OK)
-            : JsonResponse::error('Unable to delete ingredient.', Response::HTTP_INTERNAL_SERVER_ERROR);
+            : JsonResponse::error(ApiError::INGREDIENT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function __construct(JsonConverter $jsonConverter, IRecipeRepository $recipeRepository, IRecipeIngredientRepository $recipeIngredientRepository) {
