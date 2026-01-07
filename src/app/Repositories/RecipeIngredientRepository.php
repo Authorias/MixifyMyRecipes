@@ -10,7 +10,7 @@ use App\Repositories\IRecipeIngredientRepository;
 class RecipeIngredientRepository extends Repository implements IRecipeIngredientRepository {
     public function getById(array $primaryKeys) : ?object {
         return $this->getModelName()::where('recipeid', $this->getValueFromPrimaryKeys($primaryKeys))
-            ->where('ingredient', $this->getValueFromPrimaryKeys($primaryKeys, 1))
+            ->where('ingredientid', $this->getValueFromPrimaryKeys($primaryKeys, 1))
             ->first();
     }
 

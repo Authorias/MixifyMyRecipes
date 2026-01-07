@@ -12,8 +12,10 @@ abstract class Repository implements IRepository
         return $this->getModelName()::create($data);
     }
 
-    public function getAll() : Collection {
-        return $this->getModelName()::all();
+    public function getAll(int $page = 0, int $limit = 10) : Collection {
+        return $page > 0 && $limit > 0
+            ? $this->getModelName()::skip(($page - 1) * $limit)->take($limit)->get()
+            : $this->getModelName()::all();
     }
 
     public function getById(array $primaryKeys) : ?object {
