@@ -29,8 +29,7 @@ class Menu extends Model
 
     public $timestamps = true;
 
-    public function menuRecipes(): HasMany
-    {
+    public function menuRecipes() : HasMany {
         return $this->hasMany(MenuRecipe::class, 'menuid')->orderBy('position');
     }
 }

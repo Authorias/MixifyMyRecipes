@@ -44,7 +44,7 @@ class MenuController extends ApiController {
         
         $result = $this->getConverter()->convert($item, JsonOptions::Recipes + JsonOptions::Ingredients);
 
-        return JsonResponse::success($result, Response::HTTP_OK);
+        return JsonResponse::success($result);
     }
 
     /**
@@ -56,7 +56,7 @@ class MenuController extends ApiController {
 
         $item = $this->menuRepository->create($request->all());
         
-        return JsonResponse::success($item, Response::HTTP_OK);
+        return JsonResponse::success($item);
     }
 
     /**
@@ -70,7 +70,7 @@ class MenuController extends ApiController {
 
         return is_null($item)
             ? JsonResponse::error(ApiError::MENU_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
-            : JsonResponse::success($item, Response::HTTP_OK);
+            : JsonResponse::success($item);
     }
 
     /**
@@ -79,7 +79,7 @@ class MenuController extends ApiController {
      */
     public function delete($id) {
         return $this->menuRepository->delete([$id])
-            ? JsonResponse::success(null, Response::HTTP_OK)
+            ? JsonResponse::success(null)
             : JsonResponse::error(ApiError::MENU_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
@@ -97,7 +97,7 @@ class MenuController extends ApiController {
 
         $item = $this->menuRecipeRepository->create($data);
         
-        return JsonResponse::success($item, Response::HTTP_OK);
+        return JsonResponse::success($item);
     }
 
     /**
@@ -118,12 +118,12 @@ class MenuController extends ApiController {
             $data
         );
         
-        return JsonResponse::success($item, 200);
+        return JsonResponse::success($item);
     }
 
     public function deleteRecipe(string $menuid, string $recipeid) {
         return $this->menuRecipeRepository->delete([$menuid, $recipeid])
-            ? JsonResponse::success(null, Response::HTTP_OK)
+            ? JsonResponse::success(null)
             : JsonResponse::error(ApiError::RECIPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 

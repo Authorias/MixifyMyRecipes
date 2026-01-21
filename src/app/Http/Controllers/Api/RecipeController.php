@@ -44,7 +44,7 @@ class RecipeController extends ApiController {
         
         $result = $this->getConverter()->convert($item, JsonOptions::Ingredients);
 
-        return JsonResponse::success($result, Response::HTTP_OK);
+        return JsonResponse::success($result);
     }
 
     /**
@@ -56,7 +56,7 @@ class RecipeController extends ApiController {
 
         $item = $this->recipeRepository->create($request->all());
         
-        return JsonResponse::success($item, Response::HTTP_CREATED);
+        return JsonResponse::success($item);
     }
 
     /**
@@ -70,7 +70,7 @@ class RecipeController extends ApiController {
 
         return is_null($item)
             ? JsonResponse::error(ApiError::RECIPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
-            : JsonResponse::success($item, Response::HTTP_OK);
+            : JsonResponse::success($item);
     }
 
     /**
@@ -79,7 +79,7 @@ class RecipeController extends ApiController {
      */
     public function delete($id) {
         return $this->recipeRepository->delete([$id])
-            ? JsonResponse::success(null, Response::HTTP_OK)
+            ? JsonResponse::success(null)
             : JsonResponse::error(ApiError::RECIPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
@@ -97,7 +97,7 @@ class RecipeController extends ApiController {
 
         $item =  $this->recipeIngredientRepository->create($data);
         
-        return JsonResponse::success($item, Response::HTTP_OK);
+        return JsonResponse::success($item);
     }
 
     public function updateIngredient(RecipeIngredientRequest $request, string $recipeid) {
@@ -111,12 +111,12 @@ class RecipeController extends ApiController {
             $data
         );
         
-        return JsonResponse::success($item, Response::HTTP_OK);
+        return JsonResponse::success($item);
     }
 
     public function deleteIngredient(string $recipeid, string $ingredientid) {
         return $this->recipeIngredientRepository->delete([$recipeid, $ingredientid])
-            ? JsonResponse::success(null, Response::HTTP_OK)
+            ? JsonResponse::success(null)
             : JsonResponse::error(ApiError::INGREDIENT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 

@@ -24,8 +24,7 @@ class IngredientType extends Model
 
     public $timestamps = true;
 
-    public function ingredients() : HasMany
-    {
+    public function ingredients() : HasMany {
         return $this->hasMany(Ingredient::class, 'ingredienttypeid');
     }
 }

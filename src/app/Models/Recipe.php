@@ -35,18 +35,15 @@ class Recipe extends Model
 
     public $timestamps = true;
 
-    public function type(): HasOne
-    {
+    public function type() : HasOne {
         return $this->hasOne(RecipeType::class, 'id', 'recipetypeid');
     }
 
-    public function ingredientRecipes(): HasMany
-    {
+    public function ingredientRecipes() : HasMany {
         return $this->hasMany(RecipeIngredient::class, 'recipeid');
     }
 
-    public function recipieMenus(): HasMany
-    {
+    public function recipeMenus() : HasMany {
         return $this->hasMany(MenuRecipe::class, 'recipeid');
     }
 }

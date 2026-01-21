@@ -37,7 +37,7 @@ class IngredientController extends ApiController {
 
         return is_null($item)
             ? JsonResponse::error(ApiError::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
-            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
+            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None));
     }
 
 
@@ -50,7 +50,7 @@ class IngredientController extends ApiController {
 
         $item = $this->ingredientRepository->create($request->all());
         
-        return JsonResponse::success($item, Response::HTTP_OK);
+        return JsonResponse::success($item);
     }
 
     /**
@@ -64,7 +64,7 @@ class IngredientController extends ApiController {
 
         return is_null($item)
             ? JsonResponse::error(ApiError::INGREDIENT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
-            : JsonResponse::success($item, Response::HTTP_OK);
+            : JsonResponse::success($item);
     }
 
     /**
@@ -73,7 +73,7 @@ class IngredientController extends ApiController {
      */
     public function delete($id) {
         return $this->ingredientRepository->delete([$id])
-            ? JsonResponse::success(null, Response::HTTP_OK)
+            ? JsonResponse::success(null)
             : JsonResponse::error(ApiError::INGREDIENT_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 

@@ -26,8 +26,7 @@ class RecipeType extends Model
 
     public $timestamps = true;
 
-    public function recipes() : HasMany
-    {
+    public function recipes() : HasMany {
         return $this->hasMany(Recipe::class, 'recipetypeid');
     }
 }

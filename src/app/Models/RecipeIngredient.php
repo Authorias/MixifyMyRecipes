@@ -32,18 +32,15 @@ class RecipeIngredient extends Model
 
     public $timestamps = true;
 
-    public function ingredient(): BelongsTo
-    {
+    public function ingredient() : BelongsTo {
         return $this->belongsTo(Ingredient::class, 'ingredientid');
     }
 
-    public function recipe(): BelongsTo
-    {
+    public function recipe() : BelongsTo {
         return $this->belongsTo(Recipe::class, 'recipeid');
     }
 
-    public function unit(): HasOne
-    {
+    public function unit() : HasOne {
         return $this->hasOne(Unit::class, 'id', 'unitid');
     }
 }

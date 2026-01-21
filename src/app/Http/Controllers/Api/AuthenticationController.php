@@ -23,7 +23,7 @@ class AuthenticationController extends ApiController {
             $user = Auth::user();
             $token = $user->createToken('authToken')->accessToken;
 
-            return JsonResponse::success($this->getConverter()->convert($token), Response::HTTP_OK);
+            return JsonResponse::success($this->getConverter()->convert($token));
         }
 
         return JsonResponse::error('Ongeldige gebruikersnaam of wachtwoord.', Response::HTTP_UNAUTHORIZED);

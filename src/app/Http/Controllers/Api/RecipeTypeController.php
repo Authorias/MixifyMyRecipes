@@ -37,7 +37,7 @@ class RecipeTypeController extends ApiController {
 
         return is_null($item)
             ? JsonResponse::error(ApiError::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
-            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
+            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None));
     }
 
 
@@ -50,7 +50,7 @@ class RecipeTypeController extends ApiController {
 
         $item = $this->recipeTypeRepository->create($request->all());
         
-        return JsonResponse::success($item, Response::HTTP_OK);
+        return JsonResponse::success($item);
     }
 
     /**
@@ -64,7 +64,7 @@ class RecipeTypeController extends ApiController {
 
         return is_null($item)
             ? JsonResponse::error(ApiError::RECIPE_TYPE_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
-            : JsonResponse::success($item, Response::HTTP_OK);
+            : JsonResponse::success($item);
     }
 
     /**
@@ -83,7 +83,7 @@ class RecipeTypeController extends ApiController {
         }
 
         return $this->recipeTypeRepository->delete($item)
-            ? JsonResponse::success(null, Response::HTTP_OK)
+            ? JsonResponse::success(null)
             : JsonResponse::error(ApiError::RECIPE_TYPE_UNABLE_TO_DELETE_MESSAGE, Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 

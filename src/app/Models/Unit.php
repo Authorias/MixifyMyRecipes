@@ -26,8 +26,7 @@ class Unit extends Model {
 
     public $timestamps = true;
 
-    public function recipeIngredients(): HasMany
-    {
+    public function recipeIngredients() : HasMany {
         return $this->hasMany(RecipeIngredient::class, 'unitid');
     }
 }

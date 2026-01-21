@@ -14,7 +14,9 @@ abstract class Repository implements IRepository
 
     public function getAll(int $page = 0, int $limit = 10) : Collection {
         return $page > 0 && $limit > 0
-            ? $this->getModelName()::skip(($page - 1) * $limit)->take($limit)->get()
+            ? $this->getModelName()::skip(($page - 1) * $limit)
+                ->take($limit)
+                ->get()
             : $this->getModelName()::all();
     }
 

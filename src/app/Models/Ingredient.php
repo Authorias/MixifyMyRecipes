@@ -29,13 +29,11 @@ class Ingredient extends Model
 
     public $timestamps = true;
 
-    public function ingredientType(): HasOne
-    {
+    public function ingredientType() : HasOne {
         return $this->hasOne(IngredientType::class, 'id', 'ingredienttypeid');
     }
     
-    public function ingredientRecipes(): HasMany
-    {
+    public function ingredientRecipes() : HasMany {
         return $this->hasMany(RecipeIngredient::class);
     }
 }

@@ -29,13 +29,11 @@ class MenuRecipe extends Model
 
     public $timestamps = true;
 
-    public function menu(): BelongsTo
-    {
+    public function menu(): BelongsTo {
         return $this->belongsTo(Menu::class, 'menuid');
     }
 
-    public function recipe(): BelongsTo
-    {
+    public function recipe(): BelongsTo {
         return $this->belongsTo(Recipe::class, 'recipeid');
     }
 }

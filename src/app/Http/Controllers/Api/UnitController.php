@@ -38,7 +38,7 @@ class UnitController extends ApiController {
 
         return is_null($item)
             ? JsonResponse::error(ApiError::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
-            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None), Response::HTTP_OK);
+            : JsonResponse::success($this->getConverter()->convert($item, JsonOptions::None));
     }
 
 
@@ -51,7 +51,7 @@ class UnitController extends ApiController {
 
         $item = $this->unitRepository->create($request->all());
         
-        return JsonResponse::success($item, Response::HTTP_OK);
+        return JsonResponse::success($item);
     }
 
     /**
@@ -65,7 +65,7 @@ class UnitController extends ApiController {
 
         return is_null($item)
             ? JsonResponse::error(ApiError::UNIT_NOT_FOUND_MESSAGE, Response::HTTP_NOT_FOUND)
-            : JsonResponse::success($item, Response::HTTP_OK);
+            : JsonResponse::success($item);
     }
 
     /**
