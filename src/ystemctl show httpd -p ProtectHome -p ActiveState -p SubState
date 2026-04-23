@@ -1,0 +1,34 @@
+[0;1;34m# ]8;;file://PC-HOME-001/usr/lib/systemd/system/httpd.service\/usr/lib/systemd/system/httpd.service]8;;\[0m
+[0;1;36m[Unit][0m
+[0;1;32mDescription=[0mThe Apache HTTP Server
+[0;1;32mAfter=[0mnetwork.target remote-fs.target nss-lookup.target
+[0;1;32mDocumentation=[0mhttps://httpd.apache.org/docs/2.4/
+
+[0;1;36m[Service][0m
+[0;1;32mType=[0mnotify
+[0;1;32mExecStart=[0m/usr/bin/httpd -D FOREGROUND -k start
+[0;1;32mExecReload=[0m/usr/bin/httpd -k graceful
+[0;1;32mLimitNOFILE=[0minfinity
+[0;1;32mRestart=[0mon-abnormal
+[0;1;32mKillMode=[0mmixed
+
+[0;1;38:5:245m# This is too restrictive for your use case? Have a look at:[0m
+[0;1;38:5:245m# /etc/systemd/system/httpd.service.d/hardening.conf[0m
+[0;1;32mNoNewPrivileges=[0mon
+[0;1;32mPrivateDevices=[0mon
+[0;1;32mPrivateTmp=[0mon
+[0;1;32mProtectHome=[0mon
+
+[0;1;36m[Install][0m
+[0;1;32mWantedBy=[0mmulti-user.target
+
+[0;1;34m# ]8;;file://PC-HOME-001/etc/systemd/system/httpd.service.d/hardening.conf\/etc/systemd/system/httpd.service.d/hardening.conf]8;;\[0m
+[0;1;36m[Service][0m
+[0;1;38:5:245m# These are the settings from service file `httpd.service`, providing some extra[0m
+[0;1;38:5:245m# hardening and security. If this conflicts with your use case uncomment below and[0m
+[0;1;38:5:245m# configure as required.[0m
+
+[0;1;38:5:245m#NoNewPrivileges=on[0m
+[0;1;38:5:245m#PrivateDevices=on[0m
+[0;1;38:5:245m#PrivateTmp=on[0m
+[0;1;38:5:245m#ProtectHome=on[0m
