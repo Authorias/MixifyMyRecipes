@@ -48,9 +48,11 @@ abstract class Repository implements IRepository
         $keys = array_values($primaryKeys);
         $count = count($keys);
 
-        return $index < 0 || $index >= $count
-            ? throw new \InvalidArgumentException("Index $index is out of bounds for primary keys array of size $count.")
-            : $keys[$index];
+        if ($index < 0 || $index >= $count){
+            throw new \InvalidArgumentException("Index $index is out of bounds for primary keys array of size $count.");
+        }
+
+        return $keys[$index];
     }
 
     private function deleteByObject(object $item) : bool {
@@ -64,8 +66,10 @@ abstract class Repository implements IRepository
     }
 
     public function __construct(string $modelName = '') {
-        $this->modelName = is_null($modelName) || $modelName === '' 
-            ? throw new \InvalidArgumentException('Model name cannot be null or empty.')
-            : $modelName;
+        if (is_null($modelName) || $modelName === '') {
+            throw new \InvalidArgumentException('Model name cannot be null or empty.');
+        }
+
+        $this->modelName = $modelName;
     }
 }
