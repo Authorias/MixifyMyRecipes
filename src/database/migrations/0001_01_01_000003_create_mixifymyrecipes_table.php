@@ -169,3 +169,28 @@ return new class extends Migration
             ->on($targetTableName);
     }
 };
+
+abstract class TableMigration {
+    const UNITS_TABLE_NAME = 'units';
+    const INGREDIENTS_TABLE_NAME = 'ingredients';
+    const INGREDIENTTYPES_TABLE_NAME = 'ingredienttypes';
+    const RECIPES_TABLE_NAME = 'recipes';
+    const RECIPETYPES_TABLE_NAME = 'recipetypes';
+    const RECIPE_INGREDIENTS_TABLE_NAME = 'recipeingredients';
+    const MENUS_TABLE_NAME = 'menus';
+    const MENU_RECIPES_TABLE_NAME = 'menurecipes';
+
+    const NAME_COLUMN_LENGTH = 100;
+    const TAGS_COLUMN_LENGTH = 500;
+
+    const FOREIGN_KEY_PREFIX = 'fk_';
+    const UNIQUE_INDEX_PREFIX = 'idx_unique_';
+
+    abstract public string $tablename { get; }
+
+    abstract public function up(Blueprint $table): void;
+
+    public function down() : void {
+        Schema::dropIfExists($this->tablename);
+    }
+};
