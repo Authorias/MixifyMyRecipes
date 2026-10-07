@@ -30,7 +30,12 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "classmap": [
+            "database/migrations/TableMigration.php",
+            "database/migrations/TableMigrations.php",
+            "database/migrations/MixifyMyRecipiesTableMigration.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
